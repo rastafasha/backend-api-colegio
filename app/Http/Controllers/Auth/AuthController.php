@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Representante;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Http\Requests\AuthRequest;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\AuthLoginRequest;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\ChangePasswordRequest;
-use Symfony\Component\HttpFoundation\Response;
 
 ;
 
@@ -56,12 +53,43 @@ class AuthController extends Controller
             // 'user' => $user,
             'user'=>[
                 "id"=>auth('api')->user()->id,
-                "name"=>auth('api')->user()->name,
-                "surname"=>auth('api')->user()->surname,
+                "username"=>auth('api')->user()->username,
+                // "avatar"=>auth('api')->user()->avatar,
                 // "rolename"=>auth('api')->user()->rolename,
                 "roles"=>auth('api')->user()->getRoleNames(),
                 "email"=>auth('api')->user()->email,
-                // "n_doc"=>auth('api')->user()->n_doc,
+                "permissions"=>$permissions,
+
+            ],
+        ], 201);
+        
+    }
+
+    public function loginguest(Request $request)
+    {
+        $credentials = request()->only('email', 'password');
+
+        if (! $token = auth('client-api')->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
+        }
+
+        $user = Representante::where('email', request('email'))->firstOrFail();
+
+        $permissions = auth('client-api')->user()->getAllPermissions()->map(function($perm){
+            return $perm->name;
+        });
+        return response()->json([
+            'message' => "Inicio de sesión exitoso",
+            'access_token' => $this->respondWithTokenParent($token),
+            'token_type' => 'Bearer',
+            // 'user' => $user,
+            'user'=>[
+                "id"=>auth('client-api')->user()->id,
+                "username"=>auth('client-api')->user()->username,
+                // "avatar"=>auth('client-api')->user()->avatar,
+                // "rolename"=>auth('client-api')->user()->rolename,
+                "roles"=>auth('client-api')->user()->getRoleNames(),
+                "email"=>auth('client-api')->user()->email,
                 "permissions"=>$permissions,
 
             ],
@@ -75,14 +103,53 @@ class AuthController extends Controller
      */
     public function register(Request $request) {
 
-        $data = $request->only('name', 'email', 'password');
+       $data = $request->only('name', 'surname', 'email', 'password', 'n_doc');
+    //    $data = $request->only('username',  'email', 'password', );
+
+       $validator = Validator::make($data, [
+           'name' => 'required|string|between:2,100',
+           'surname' => 'required|string|between:2,100',
+           'n_doc' => 'required',
+           'email' => 'required|string|email|max:100|unique:users',
+           'password' => 'required|string|min:5',
+           'role' => Rule::in([User::GUEST]),
+       ]);
+       
+
+       if($validator->fails()){
+           return response()->json($validator->errors(), 422);
+       }
+
+       $user = User::create([
+           'name' => $request->name,
+            'surname' => $request->surname,
+            'n_doc' => $request->n_doc,
+           'email' => $request->email,
+           'password' => Hash::make($request->password),
+           'role' => User::GUEST,
+       ]);
+
+       $token = JWTAuth::fromUser($user);
+
+       return response()->json([
+           'message' => 'User registered successfully',
+           'user' => $user,
+           'access_token' => $token,
+           'token_type' => 'Bearer',
+       ], 201);
+
+    }
+    public function registerguest(Request $request) {
+
+        $data = $request->only('name', 'surname', 'email', 'password', 'n_doc');
+        // $data = $request->only('username',  'email', 'password', );
 
         $validator = Validator::make($data, [
             'name' => 'required|string|between:2,100',
+            'surname' => 'required|string|between:2,100',
+            'n_doc' => 'required',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|min:5',
-            // 'role_id' => 'required|integer|exists:roles,id', // validate role_id as an existing role id
-            // 'n_doc' => 'required',
             'role' => Rule::in([User::GUEST]),
         ]);
         
@@ -91,17 +158,15 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $user = User::create([
+        $user = Representante::create([
             'name' => $request->name,
+            'surname' => $request->surname,
+            'n_doc' => $request->n_doc,
             'email' => $request->email,
-            // 'n_doc' => $request->n_doc,
             'password' => Hash::make($request->password),
-            // 'role' => User::GUEST,
+            'role' => Representante::GUEST,
         ]);
-        
 
-        // Asigna el rol con id 5 al usuario
-        $user->assignRole(5);
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
@@ -167,20 +232,33 @@ class AuthController extends Controller
                 "surname"=>auth('api')->user()->surname,
                 "rolename"=>auth('api')->user()->rolename,
                 "email"=>auth('api')->user()->email,
-                // "n_doc"=>auth('api')->user()->n_doc,
-                "permissions"=>$permissions,
+                "n_doc"=>auth('api')->user()->n_doc,
+                // "permissions"=>$permissions,
 
             ],
-            // 'role' => [
-            //     "id"=>$user->id,
-            //     "name"=>$user->name,
-            //     "surname"=>$user->surname,
-            //     // "rolename"=>$user->rolename,
-            //     "roles"=>$user->getRoleNames(),
-            //     "email"=>$user->email,
-            //     // "n_doc"=>$user->n_doc,
-            //     "permissions"=>$permissions,
-            // ],
+        ]);
+    }
+
+    protected function respondWithTokenParent($token)
+    {
+        $permissions = auth('client-api')->user()->getAllPermissions()->map(function($perm){
+            return $perm->name;
+        });
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('client-api')->factory()->getTTL() * 180,
+            // 'user'=>auth('client-api')->user(),
+            'user'=>[
+                // "avatar"=>auth('client-api')->user()->avatar,
+                "name"=>auth('api')->user()->name,
+                "surname"=>auth('api')->user()->surname,
+                "rolename"=>auth('api')->user()->rolename,
+                "email"=>auth('client-api')->user()->email,
+                "n_doc"=>auth('api')->user()->n_doc,
+                // "permissions"=>$permissions,
+
+            ],
         ]);
     }
 
@@ -190,7 +268,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function changePassword(ChangePasswordRequest $request)
+    public function changePassword(Request $request)
     {
         $user = Auth::user();
 
@@ -212,4 +290,6 @@ class AuthController extends Controller
             'user' => $user,
         ], 200);
     }
+
+     
 }
