@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
 use App\Models\Representante;
 use Carbon\Carbon;
 use App\Models\Student;
@@ -22,14 +23,13 @@ class StudentController extends Controller
     {
         $search = $request->search;
 
-        $students = Student::where(DB::raw("CONCAT(students.name,' ', IFNULL(patients.surname,''),' ',patients.email)"),
-        "like","%".$search."%"
-        )->orderBy("id", "desc")
+        $students = Student::orderBy("id", "desc")
         ->paginate(10);
                     
         return response()->json([
             "total" =>$students->total(),
-            "students" => StudentCollection::make($students),
+            "students" => $students,
+            // "students" => StudentCollection::make($students),
             
         ]);          
     }
@@ -99,6 +99,36 @@ class StudentController extends Controller
         return response()->json([
             "student" => StudentResource::make($student),
         ]);
+    }
+
+    public function studentbyParent(Request $request, $parent_id)
+    {
+        $parent = Representante::findOrFail($parent_id);
+        $students = Student::where("parent_id", $parent_id)->orderBy('created_at', 'DESC')
+        ->get();
+
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'parent' => $parent,
+            "students" => $students,
+            // "students" => StudentCollection::make($students),
+        ], 200);
+    }
+
+    public function paymentbyStudent(Request $request, $parent_id)
+    {
+        $student = Student::findOrFail($parent_id);
+        $payments = Payment::where("parent_id", $parent_id)->orderBy('created_at', 'DESC')
+        ->get();
+
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'student' => $student,
+            "payments" => $payments,
+            // "students" => StudentCollection::make($students),
+        ], 200);
     }
 
 

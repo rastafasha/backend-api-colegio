@@ -63,6 +63,12 @@ Route::group(['middleware' => 'api'], function ($router) {
     // paymentMethod
     require __DIR__ . '/api_routes/paymentMethod.php';
     
+    // parent
+    require __DIR__ . '/api_routes/parent.php';
+    
+    // student
+    require __DIR__ . '/api_routes/student.php';
+    
 
 
 

@@ -28,19 +28,12 @@ class RepresentanteController extends Controller
             return response()->json([
                 'code' => 200,
                 'status' => 'Listar todos los Usuarios',
-                "representantes" => RepresntanteResource::make($representantes)
+                "representantes" => $representantes
+                // "representantes" => RepresntanteResource::make($representantes)
             ], 200);
     }
 
-    public function config()
-    {
-        
-        $roles = Role::get();
-        return response()->json([
-            "roles" => $roles,
-
-        ]);
-    }
+    
 
 
     /**
@@ -49,13 +42,14 @@ class RepresentanteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function userShow($id)
+    public function show($id)
     {
         $representante = Representante::findOrFail($id);
 
         return response()->json([
             // "user" => $representante,
-            "representante" => RepresntanteResource::make($representante)
+            // "representante" => RepresntanteResource::make($representante)
+            "representante" => $representante
             
         ]);
     }

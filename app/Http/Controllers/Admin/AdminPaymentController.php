@@ -55,7 +55,8 @@ class AdminPaymentController extends Controller
                     
         return response()->json([
             "total"=>$payments->total(),
-            "payments" => PaymentCollection::make($payments) ,
+            "payments" => $payments ,
+            // "payments" => PaymentCollection::make($payments) ,
             
         ]);  
     }
@@ -122,7 +123,8 @@ class AdminPaymentController extends Controller
         return response()->json([
             'code' => 200,
             'status' => 'success',
-            "payment" => PaymentResource::make($payment),
+            // "payment" => PaymentResource::make($payment),
+            "payment" => $payment,
         ], 200);
     }
 
