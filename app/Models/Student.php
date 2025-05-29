@@ -32,4 +32,13 @@ class Student extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public static function search($query = ''){
+        if(!$query){
+            return self::all();
+        }
+        return self::where('name', 'like', "%$query%")
+        
+        ->get();
+    }
 }

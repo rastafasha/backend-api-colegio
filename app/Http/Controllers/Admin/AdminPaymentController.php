@@ -362,16 +362,17 @@ class AdminPaymentController extends Controller
     }
 
 
-    public function pagosbyUser(Request $request, $patient_id)
+    public function pagosbyUser(Request $request, $parent_id)
     {
         
-        $payments = Payment::where("patient_id", $patient_id)->orderBy('created_at', 'DESC')
+        $payments = Payment::where("parent_id", $parent_id)->orderBy('created_at', 'DESC')
         ->get();
 
         return response()->json([
             'code' => 200,
             'status' => 'success',
-            "payments" => PaymentCollection::make($payments),
+            // "payments" => PaymentCollection::make($payments),
+            "payments" => $payments,
         ], 200);
     }
 

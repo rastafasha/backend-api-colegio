@@ -197,4 +197,8 @@ class StudentController extends Controller
     }
 
 
+    public function search(Request $request){
+        return Student::search($request->buscar);
+    }
+
 }
