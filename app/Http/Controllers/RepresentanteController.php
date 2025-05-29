@@ -61,7 +61,7 @@ class RepresentanteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function userUpdate(Request $request, string $id)
+    public function update(Request $request, string $id)
     {
         $representante_is_valid = Representante::where("id", "<>", $id)->where("email", $request->email)->first();
         $role_new = null;
