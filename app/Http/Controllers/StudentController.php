@@ -116,10 +116,10 @@ class StudentController extends Controller
         ], 200);
     }
 
-    public function paymentbyStudent(Request $request, $parent_id)
+    public function paymentbyStudent(Request $request, $student_id)
     {
-        $student = Student::findOrFail($parent_id);
-        $payments = Payment::where("parent_id", $parent_id)->orderBy('created_at', 'DESC')
+        $student = Student::findOrFail($student_id);
+        $payments = Payment::where("student_id", $student_id)->orderBy('created_at', 'DESC')
         ->get();
 
         return response()->json([

@@ -313,53 +313,12 @@ class AdminPaymentController extends Controller
 
 
 
-    public function updateStatus(Request $request, $id)
+   public function updateStatus(Request $request, $id)
     {
-        $patient = Patient::where("id", $request->patient_id)->first();
         $payment = Payment::findOrfail($id);
         $payment->status = $request->status;
         $payment->update();
-
-        
-        $appointment = Appointment::where("patient_id", $request->patient_id)->first();
-        $appointmentpay = AppointmentPay::where("appointment_id", $request->appointment_id)->first();
-        $sum_total_pays = AppointmentPay::where("appointment_id",$id)->sum("amount");
-        $monto = Payment::where("appointment_id",$id)->sum("monto");
-        
-        $costo = $appointment->amount;
-        $deuda = ($costo - $sum_total_pays); 
-        
-        
-        if($request->status === 'APPROVED'){
-            // Update Appointment status
-            if($request->monto == $deuda){
-                $appointment->update(["status_pay"=>1]);
-            }
-    
-            $appointmentpay = AppointmentPay::create([
-                "appointment_id" =>$request->appointment_id,
-                "amount"=>$request->monto,
-                "method_payment" =>$request->bank_name,
-            ]);
-        }
-
-        
-        // error_log($appointment);
-
-        if($request->status === '2'){
-            Mail::to($appointment->patient->email)->send(new ConfirmationAppointment($appointment));
-
-        }
-        return response()->json([
-            "message" => 200,
-            "payment" => $payment,
-            "appointment" => $appointment,
-            "appointmentpay" => $appointmentpay,
-            
-        ]);
-        
-        
-
+        return $payment;
     }
 
 
