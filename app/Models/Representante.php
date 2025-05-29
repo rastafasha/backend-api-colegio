@@ -12,9 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Auth\Authenticatable;
 
-class Representante extends Model
+class Representante extends Model implements JWTSubject, AuthenticatableContract
 {
+    use Authenticatable;
+
     protected $table = 'representantes';
 
    use HasApiTokens, HasFactory, Notifiable, HavePermission,  HasRoles;
@@ -67,7 +72,6 @@ class Representante extends Model
         'email_verified_at' => 'datetime',
     ];
 
-    const SUPERADMIN = 'SUPERADMIN';
     const GUEST = 'GUEST';
 
     public function setCreatedAtAttribute($value)
@@ -88,11 +92,6 @@ class Representante extends Model
     | functions
     |--------------------------------------------------------------------------
     */
-
-    public function isSuperAdmin()
-    {
-        return $this->role === Representante::SUPERADMIN;
-    }
 
     public function isGuest()
     {

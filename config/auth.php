@@ -46,6 +46,12 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
+        'parent-api' => [
+            'driver' => 'jwt',
+            'provider' => 'representantes',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -71,11 +77,13 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'representantes' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Representante::class,
+        ],
     ],
+
+    
 
     /*
     |--------------------------------------------------------------------------

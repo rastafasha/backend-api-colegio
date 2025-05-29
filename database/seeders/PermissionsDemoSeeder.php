@@ -41,8 +41,10 @@ class PermissionsDemoSeeder extends Seeder
         // $role2->givePermissionTo('publish articles');
         // $role2->givePermissionTo('unpublish articles');
 
-        $role3 = Role::create(['guard_name' => 'api','name' => 'SUPERADMIN']);
+        // $role3 = Role::create(['guard_name' => 'api','name' => 'SUPERADMIN']);
         // gets all permissions via Gate::before rule; see AuthServiceProvider
+
+        $role4 = Role::create(['guard_name' => 'parent-api', 'name' => 'GUEST']);
 
         // create demo users
         // $user = \App\Models\User::factory()->create([
@@ -59,14 +61,36 @@ class PermissionsDemoSeeder extends Seeder
         // ]);
         // $user->assignRole($role2);
 
-        $user = \App\Models\User::factory()->create([
-            'name' => 'superadmin',
-            'email' => 'superadmin@superadmin.com',
-            'password' => bcrypt('password'),
-            "rolename" => User::SUPERADMIN,
-        ]);
+        // $user = \App\Models\User::factory()->create(
+        //     [
+        //         // "rolename" => User::GUEST,
+        //         "name" => "invitado",
+        //         'surname' => 'Johnson',
+        //         "email" => "invitado@invitado.com",
+        //         'gender' => 1,
+        //         "password" => bcrypt("password"),
+        //         'roles' => [
+        //             [
+        //                 "id"=> 9,
+        //                 "name"=> "GUEST",
+        //                 "guard_name"=> "api-parent",
+        //                 "created_at"=> "2025-02-16T06:49:18.000000Z",
+        //                 "updated_at"=> "2025-02-16T06:49:18.000000Z",
+        //             ],
+        //             'pivot' => [
+        //                 [
+        //                     "model_id"=> 8,
+        //                     "role_id"=> 9,   
+        //                     "model_type"=> "App\\Models\\User"
+        //                 ]
+        //             ],
+        //         ],
+        //         "email_verified_at" => now(),
+        //         "created_at" => now(),
+        //     ]
+        // );
 
         
-        $user->assignRole($role3);
+        // $user->assignRole($role4);
     }
 }

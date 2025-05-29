@@ -69,13 +69,13 @@ class AuthController extends Controller
     {
         $credentials = request()->only('email', 'password');
 
-        if (! $token = auth('client-api')->attempt($credentials)) {
+        if (! $token = auth('parent-api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
         }
 
         $user = Representante::where('email', request('email'))->firstOrFail();
 
-        $permissions = auth('client-api')->user()->getAllPermissions()->map(function($perm){
+        $permissions = auth('parent-api')->user()->getAllPermissions()->map(function($perm){
             return $perm->name;
         });
         return response()->json([
@@ -84,12 +84,12 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             // 'user' => $user,
             'user'=>[
-                "id"=>auth('client-api')->user()->id,
-                "username"=>auth('client-api')->user()->username,
-                // "avatar"=>auth('client-api')->user()->avatar,
-                // "rolename"=>auth('client-api')->user()->rolename,
-                "roles"=>auth('client-api')->user()->getRoleNames(),
-                "email"=>auth('client-api')->user()->email,
+                "id"=>auth('parent-api')->user()->id,
+                "username"=>auth('parent-api')->user()->username,
+                // "avatar"=>auth('parent-api')->user()->avatar,
+                // "rolename"=>auth('parent-api')->user()->rolename,
+                "roles"=>auth('parent-api')->user()->getRoleNames(),
+                "email"=>auth('parent-api')->user()->email,
                 "permissions"=>$permissions,
 
             ],
@@ -149,12 +149,13 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function registerParent(Request $request) {
+    public function registerguest(Request $request) {
 
         $data = $request->only('name', 'surname', 'email', 'password', 'n_doc');
         // $data = $request->only('username',  'email', 'password', );
 
         $validator = Validator::make($data, [
+            // 'username' => 'required|string|between:2,100',
             'name' => 'required|string|between:2,100',
             'surname' => 'required|string|between:2,100',
             'n_doc' => 'required',
@@ -171,13 +172,15 @@ class AuthController extends Controller
         $user = Representante::create([
             'name' => $request->name,
             'surname' => $request->surname,
-            'n_doc' => $request->n_doc,
             'email' => $request->email,
+            'n_doc' => $request->n_doc,
             'password' => Hash::make($request->password),
             'role' => Representante::GUEST,
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        $user->assignRole(Representante::GUEST);
+
+       $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'message' => 'User registered successfully',
@@ -251,21 +254,21 @@ class AuthController extends Controller
 
     protected function respondWithTokenParent($token)
     {
-        $permissions = auth('client-api')->user()->getAllPermissions()->map(function($perm){
+        $permissions = auth('parent-api')->user()->getAllPermissions()->map(function($perm){
             return $perm->name;
         });
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('client-api')->factory()->getTTL() * 180,
+            'expires_in' => auth('parent-api')->factory()->getTTL() * 180,
             // 'user'=>auth('client-api')->user(),
             'user'=>[
                 // "avatar"=>auth('client-api')->user()->avatar,
-                "name"=>auth('api')->user()->name,
-                "surname"=>auth('api')->user()->surname,
-                "rolename"=>auth('api')->user()->rolename,
-                "email"=>auth('client-api')->user()->email,
-                "n_doc"=>auth('api')->user()->n_doc,
+                "name"=>auth('parent-api')->user()->name,
+                "surname"=>auth('parent-api')->user()->surname,
+                "rolename"=>auth('parent-api')->user()->rolename,
+                "email"=>auth('parent-api')->user()->email,
+                "n_doc"=>auth('parent-api')->user()->n_doc,
                 // "permissions"=>$permissions,
 
             ],

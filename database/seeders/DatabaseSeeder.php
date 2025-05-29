@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
         $this->call(UserSeeder::class);
         $this->call(RepresentanteSeeder::class);
+        $this->call(PermissionsDemoSeeder::class);
         $this->call(TiposDePagoSeeder::class);
         $this->call(PaymentsSeeder::class);
 
