@@ -99,18 +99,18 @@ class Payment extends Model
     */
 
 
-    // public function scopefilterAdvancePayment($query,
-    // // $metodo, 
-    // $search_referencia
-    // ){
+    public function scopefilterAdvancePayment($query,
+    // $metodo, 
+    $search_referencia
+    ){
         
         
-    //     if($search_referencia){
-    //         $query->where("referencia", $search_referencia);
-    //     }
+        if($search_referencia){
+            $query->where("referencia", $search_referencia);
+        }
         
-    //     return $query;
-    // }
+        return $query;
+    }
 
     public static function search($query = ''){
         if(!$query){
