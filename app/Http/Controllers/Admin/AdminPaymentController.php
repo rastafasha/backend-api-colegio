@@ -221,7 +221,8 @@ class AdminPaymentController extends Controller
     public function recientes()
     {
         $payments = Payment::orderBy('created_at', 'DESC')
-        ->get();
+        ->paginate(10);
+        // ->get();
 
         return response()->json([
             'code' => 200,

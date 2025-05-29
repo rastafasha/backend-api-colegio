@@ -129,6 +129,8 @@ class AuthController extends Controller
            'role' => User::GUEST,
        ]);
 
+       $user->assignRole(User::GUEST);
+
        $token = JWTAuth::fromUser($user);
 
        return response()->json([
@@ -139,7 +141,15 @@ class AuthController extends Controller
        ], 201);
 
     }
-    public function registerguest(Request $request) {
+    /**
+     * Register a user as a parent, padre, or representante.
+     * This function saves the user in the representantes table with role GUEST,
+     * representing a parent or legal representative.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function registerParent(Request $request) {
 
         $data = $request->only('name', 'surname', 'email', 'password', 'n_doc');
         // $data = $request->only('username',  'email', 'password', );
@@ -150,7 +160,7 @@ class AuthController extends Controller
             'n_doc' => 'required',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|min:5',
-            'role' => Rule::in([User::GUEST]),
+            'role' => Rule::in([Representante::GUEST]),
         ]);
         
 
