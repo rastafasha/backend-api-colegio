@@ -97,7 +97,8 @@ class StudentController extends Controller
         $student = Student::findOrFail($id);
 
         return response()->json([
-            "student" => StudentResource::make($student),
+            // "student" => StudentResource::make($student),
+            "student" => $student,
         ]);
     }
 

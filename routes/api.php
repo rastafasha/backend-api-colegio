@@ -69,6 +69,11 @@ Route::group(['middleware' => 'api'], function ($router) {
     // student
     require __DIR__ . '/api_routes/student.php';
     
+    // tasabcv
+    require __DIR__ . '/api_routes/tasabcv.php';
+    // moroso
+    require __DIR__ . '/api_routes/moroso.php';
+    
 
 
 
