@@ -42,7 +42,7 @@ class PaymentsSeeder extends Seeder
                     'status_deuda' => $status_deuda,
                     'nombre' => $representante->name . ' ' . $representante->surname,
                     'email' => $representante->email,
-                    'image' => null,
+                    'avatar' => null,
                     'fecha' => Carbon::now(),
                     'status' => $faker->randomElement([Payment::APPROVED, Payment::PENDING, Payment::REJECTED]),
                     'student_id' => $student->id,

@@ -23,6 +23,7 @@ class StudentResource extends JsonResource
             "n_doc"=>$this->resource->n_doc,
             "school_year"=>$this->resource->school_year,
             "section"=>$this->resource->section,
+            "matricula"=>$this->resource->matricula,
             "avatar"=> $this->resource->avatar ? env("APP_URL")."storage/".$this->resource->avatar : null,
             // "avatar"=> $this->resource->avatar ? env("APP_URL").$this->resource->avatar : null,
             "birth_date"=>$this->resource->birth_date ? Carbon::parse($this->resource->birth_date)->format("Y/m/d") : NULL,

@@ -20,6 +20,7 @@ class Student extends Model
         'school_year',
         'parent_id',
         'section',
+        'matricula',
     ];
 
 

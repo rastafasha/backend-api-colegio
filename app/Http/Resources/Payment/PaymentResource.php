@@ -28,6 +28,9 @@ class PaymentResource extends JsonResource
             "student_id" =>$this->resource->student_id,
             "status" =>$this->resource->status,
             "fecha" =>$this->resource->fecha,
+            "avatar"=> $this->resource->avatar ? env("APP_URL")."storage/".$this->resource->avatar : null,
+            // "avatar"=> $this->resource->avatar ? env("APP_URL").$this->resource->avatar : null,
+            
             "created_at"=>$this->resource->created_at ? Carbon::parse($this->resource->created_at)->format("Y-m-d h:i A") : NULL,
         ];
     }

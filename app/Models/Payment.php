@@ -32,7 +32,7 @@ class Payment extends Model
         'email',
         'patient_id',
         'student_id',
-        'image',
+        'avatar',
         'fecha',
         'status',
         'deuda',

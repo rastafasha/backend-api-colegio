@@ -22,6 +22,7 @@ class CreateStudentsTable extends Migration
             $table->string('n_doc', 50)->unique()->nullable();
             $table->string('school_year')->nullable();
             $table->string('section')->nullable();
+            $table->double('matricula', 15, 2)->nullable();
             $table->string('avatar')->nullable();
 
             $table->unsignedBigInteger('parent_id')->nullable();

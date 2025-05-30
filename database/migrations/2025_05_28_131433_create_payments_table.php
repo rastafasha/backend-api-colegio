@@ -22,7 +22,7 @@ class CreatePaymentsTable extends Migration
             $table->double('monto', 15, 2);
             $table->string('nombre', 250);
             $table->string('email', 250);
-            $table->string('image', 250)->nullable();
+            $table->string('avatar', 250)->nullable();
             $table->timestamp('fecha');
             $table->enum('status', [
                 'APPROVED',

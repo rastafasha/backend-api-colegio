@@ -8,16 +8,11 @@ use App\Models\Payment;
 use App\Helpers\Uploader;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\Patient\Patient;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Mail\NewPaymentRegisterMail;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ConfirmationAppointment;
-use App\Models\Appointment\Appointment;
-use App\Models\Appointment\AppointmentPay;
 use App\Http\Resources\Appointment\Payment\PaymentResource;
 use App\Http\Resources\Appointment\Payment\PaymentCollection;
+use Illuminate\Support\Facades\Storage;
 
 class AdminPaymentController extends Controller
 {
@@ -75,6 +70,12 @@ class AdminPaymentController extends Controller
             $monto = str_replace(',', '', $request->input('monto'));
             $request->merge(['monto' => (float)$monto]);
         }
+
+        if($request->hasFile('imagen')){
+            $path = Storage::putFile("payments", $request->file('imagen'));
+            $request->request->add(["avatar"=>$path]);
+        }
+
         
         //extraigo el email del doctor seleccionado de la cita
         // $email_doctor = $appointment->doctor->email;
