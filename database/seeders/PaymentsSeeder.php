@@ -23,11 +23,22 @@ class PaymentsSeeder extends Seeder
 
         foreach ($representantes as $representante) {
             foreach ($representante->students as $student) {
+                $monto = $faker->randomFloat(2, 100, 1000);
+                $deuda = $monto * 0.5; // example calculation
+                $monto_pendiente = $monto - $deuda;
+                $status_deuda = null;
+                if ($monto < 400) {
+                    $status_deuda = 'DEUDA';
+                }
+
                 Payment::create([
                     'referencia' => $faker->unique()->bothify('REF-#####'),
                     'metodo' => $faker->randomElement(['Credit Card', 'Bank Transfer', 'Cash', 'Paypal']),
                     'bank_name' => $faker->randomElement(['Bank of America', 'Chase', 'Wells Fargo', 'Citibank']),
-                    'monto' => $faker->randomFloat(2, 100, 1000),
+                    'monto' => $monto,
+                    'deuda' => $deuda,
+                    'monto_pendiente' => $monto_pendiente,
+                    'status_deuda' => $status_deuda,
                     'nombre' => $representante->name . ' ' . $representante->surname,
                     'email' => $representante->email,
                     'image' => null,

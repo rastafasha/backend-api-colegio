@@ -29,6 +29,9 @@ class CreatePaymentsTable extends Migration
                 'REJECTED'
             ])->default('PENDING');
 
+            $table->double('deuda')->default(0);
+            $table->double('monto_pendiente')->default(0);
+            $table->string('status_deuda')->nullable();
 
             // Provider IDs
             $table->unsignedBigInteger('student_id')->nullable();
@@ -51,5 +54,6 @@ class CreatePaymentsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('payments');
+        
     }
 }

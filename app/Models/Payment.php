@@ -33,7 +33,10 @@ class Payment extends Model
         'student_id',
         'image',
         'fecha',
-        'status'
+        'status',
+        'deuda',
+        'monto_pendiente',
+        'status_deuda'
     ];
 
     const APPROVED = 'APPROVED';
