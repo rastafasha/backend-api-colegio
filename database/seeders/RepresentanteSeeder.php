@@ -41,6 +41,7 @@ class RepresentanteSeeder extends Seeder
                     'name' => $faker->firstName,
                     'surname' => $faker->lastName,
                     'n_doc' => $faker->unique()->numerify('##########'),
+                    'matricula' => 1000,
                     'birth_date' => $faker->date(),
                     'gender' => $faker->randomElement(['1', '2']),
                     'avatar' => null,
