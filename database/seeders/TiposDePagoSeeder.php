@@ -43,7 +43,7 @@ class TiposDePagoSeeder extends Seeder
             ],
             [
                 'id' => 3,
-                'tipo' => 'pagomovil',
+                'tipo' => 'Pago Móvil',
                 'ciorif' => '123456',
                 'telefono' => '234567',
                 'bankAccount' => '253453',
@@ -57,7 +57,7 @@ class TiposDePagoSeeder extends Seeder
             ],
             [
                 'id' => 4,
-                'tipo' => 'pagomovil',
+                'tipo' => 'Pago Móvil',
                 'ciorif' => '1223338',
                 'telefono' => '234566777',
                 'bankAccount' => null,

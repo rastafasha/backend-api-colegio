@@ -18,7 +18,8 @@ class CreatePaymentsTable extends Migration
             $table->string('referencia', 250);
             $table->string('metodo', 250);
             $table->string('bank_name', 250);
-            $table->double('monto', 250);
+            $table->string('bank_destino', 250);
+            $table->double('monto', 15, 2);
             $table->string('nombre', 250);
             $table->string('email', 250);
             $table->string('image', 250)->nullable();

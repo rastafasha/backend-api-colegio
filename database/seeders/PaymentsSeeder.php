@@ -33,8 +33,9 @@ class PaymentsSeeder extends Seeder
 
                 Payment::create([
                     'referencia' => $faker->unique()->bothify('REF-#####'),
-                    'metodo' => $faker->randomElement(['Credit Card', 'Bank Transfer', 'Cash', 'Paypal']),
+                    'metodo' => $faker->randomElement(['Transferencia Dólares', 'Transferencia Bolívares', 'Pago Móvil']),
                     'bank_name' => $faker->randomElement(['Bank of America', 'Chase', 'Wells Fargo', 'Citibank']),
+                    'bank_destino' => $faker->randomElement(['Bank of America', 'Chase', 'Wells Fargo', 'Citibank']),
                     'monto' => $monto,
                     'deuda' => $deuda,
                     'monto_pendiente' => $monto_pendiente,

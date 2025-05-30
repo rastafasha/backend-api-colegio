@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Representante;
 use App\Models\User;
 use App\Models\Payment;
 use App\Helpers\Uploader;
@@ -69,32 +70,18 @@ class AdminPaymentController extends Controller
      */
     public function paymentStore(Request $request)
     {
-        $doctor = User::where("id", $request->doctor_id)->first();
-        //reviso si viene el id del appointment
-        $appointment = Appointment::
-        where("id", $request->appointment_id)
-        ->first();
-        if (!$appointment) {
-            return response()->json(['message' => 'Appointment not found.'], 404);
+        // Sanitize 'monto' to remove commas and convert to float
+        if ($request->has('monto')) {
+            $monto = str_replace(',', '', $request->input('monto'));
+            $request->merge(['monto' => (float)$monto]);
         }
-
+        
         //extraigo el email del doctor seleccionado de la cita
         // $email_doctor = $appointment->doctor->email;
         
-        $payment = Payment::create([
-            "patient_id" =>$request->patient_id,
-            "appointment_id" =>$request->appointment_id,
-            "nombre" => $request->nombre,
-            "monto" =>$request->monto,
-            "email" =>$request->email,
-            "bank_name" =>$request->bank_name,
-            "metodo" =>$request->metodo,
-            "referencia" =>$request->referencia,
-            "status" =>$request->status,
-            // "status_pay" =>$request->amount != $request->amount_add ? 2 : 1,
-        ]);
-        //envio de correo al doctor
-        Mail::to($appointment->doctor->email)->send(new NewPaymentRegisterMail($payment));
+        $payment = Payment::create($request->all());
+        //envio de correo 
+        // Mail::to($appointment->doctor->email)->send(new NewPaymentRegisterMail($payment));
         // Mail::to($email_doctor)->send(new NewPaymentRegisterMail($payment));
         
         return response()->json([

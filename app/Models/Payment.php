@@ -26,6 +26,7 @@ class Payment extends Model
         'referencia',
         'metodo',
         'bank_name',
+        'bank_destino',
         'monto',
         'nombre',
         'email',
