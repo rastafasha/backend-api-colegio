@@ -90,7 +90,15 @@ class Payment extends Model
     {
         return $this->belongsTo(Representante::class, 'parent_id');
     }
+    public function parent()
+    {
+        return $this->belongsTo(Representante::class, 'parent_id');
+    }
     public function students()
+    {
+        return $this->hasMany(Student::class, 'student_id');
+    }
+    public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
     }

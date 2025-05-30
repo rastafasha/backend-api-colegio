@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Representante;
 use App\Models\User;
 use App\Models\Payment;
 use App\Helpers\Uploader;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\Representante;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\Appointment\Payment\PaymentResource;
 use App\Http\Resources\Appointment\Payment\PaymentCollection;
-use Illuminate\Support\Facades\Storage;
 
 class AdminPaymentController extends Controller
 {
@@ -106,6 +106,7 @@ class AdminPaymentController extends Controller
                 'message' => 'Pago not found.'
             ], 404);
         }
+        
 
 
         return response()->json([
@@ -313,7 +314,9 @@ class AdminPaymentController extends Controller
     public function pagosbyUser(Request $request, $parent_id)
     {
         
-        $payments = Payment::where("parent_id", $parent_id)->orderBy('created_at', 'DESC')
+        $payments = Payment::where("parent_id", $parent_id)
+        ->orderBy('created_at', 'DESC')
+        ->with('student')
         ->get();
 
         return response()->json([
@@ -342,12 +345,14 @@ class AdminPaymentController extends Controller
         $payments = Payment::where('status', 'PENDING')
         ->where("parent_id", $parent_id)
         ->orderBy("id", "desc")
+        ->with('student')
         ->paginate(10);
         
         return response()->json([
             "total"=>$payments->total(),
-            "payments"=> $payments
-            // "payments"=> PaymentCollection::make($payments)
+            "payments"=> $payments,
+            // "students"=> $student,
+            // "payments"=> PaymentResource::make($payments)
         ]);
 
     }

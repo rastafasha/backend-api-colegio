@@ -25,6 +25,9 @@ class RepresntanteResource extends JsonResource
             "email"=>$this->resource->email,
             "password"=>$this->resource->password,
             "roles"=>$this->resource->roles->first(),
+            "avatar"=> $this->resource->avatar ? env("APP_URL")."storage/".$this->resource->avatar : null,
+            // "avatar"=> $this->resource->avatar ? env("APP_URL").$this->resource->avatar : null,
+            
             "payments"=>$this->resource->payments ? [
                 "id"=>$this->resource->payments->id,
             ]:NULL,
