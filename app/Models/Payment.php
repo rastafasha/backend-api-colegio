@@ -30,7 +30,7 @@ class Payment extends Model
         'monto',
         'nombre',
         'email',
-        'patient_id',
+        'parent_id',
         'student_id',
         'avatar',
         'fecha',

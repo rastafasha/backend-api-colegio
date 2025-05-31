@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminPaymentController;
-use App\Http\Controllers\Admin\AdminPaymentSoftDeletesController;
 
 //pagos
 
@@ -50,15 +49,10 @@ Route::get('/payment/pendientesbyParent/{id}', [AdminPaymentController::class, '
 Route::put('/payment/update/status/{payment:id}', [AdminPaymentController::class, 'updateStatus'])
     ->name('payment.updateStatus');
 
-//Admin Pagos Softdeletes
-Route::get('/payments/delete', [AdminPaymentSoftDeletesController::class, 'index'])
-    ->name('payments.delete.index');
 
-Route::get('/payment/delete/show/{id}', [AdminPaymentSoftDeletesController::class, 'paymentDeleteShow'])
-    ->name('payment.delete.show');
 
-Route::put('/payment/delete/restore/{id}', [AdminPaymentSoftDeletesController::class, 'paymentDeleteRestore'])
-    ->name('payment.delete.restore');
-
-Route::delete('/payment/destroy/force/{id}', [AdminPaymentSoftDeletesController::class, 'paymentDeleteforce'])
-    ->name('payment.delete.force');
+// Route for checkDebtStatus
+Route::get('/payment/check-debt-status/{parent_id}/{student_id}', [AdminPaymentController::class, 'checkDebtStatus'])
+    ->name('payment.checkDebtStatus');
+Route::get('/payment/check-debt-status-p/{parent_id}', [AdminPaymentController::class, 'checkDebtStatusByParent'])
+    ->name('payment.checkDebtStatusByParent');

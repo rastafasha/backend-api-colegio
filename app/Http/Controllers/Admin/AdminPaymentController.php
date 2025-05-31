@@ -13,6 +13,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\Appointment\Payment\PaymentResource;
 use App\Http\Resources\Appointment\Payment\PaymentCollection;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EnrollmentNotificationMail;
+use Carbon\Carbon;
 
 class AdminPaymentController extends Controller
 {
@@ -41,13 +44,9 @@ class AdminPaymentController extends Controller
         $monto = $request->monto;
         $fecha = $request->fecha;
 
-        // $payments = Payment::where("referencia","like","%".$referencia."%")
-        // ->orderBy("id","desc")
-        // ->paginate(10);
-        // // ->get();
 
         $payments = Payment::filterAdvancePayment($search_referencia)->orderBy("id", "desc")
-                            ->paginate(10);
+                            ->paginate(100);
                     
         return response()->json([
             "total"=>$payments->total(),
@@ -76,15 +75,15 @@ class AdminPaymentController extends Controller
             $request->request->add(["avatar"=>$path]);
         }
 
-        
-        //extraigo el email del doctor seleccionado de la cita
-        // $email_doctor = $appointment->doctor->email;
-        
         $payment = Payment::create($request->all());
-        //envio de correo 
-        // Mail::to($appointment->doctor->email)->send(new NewPaymentRegisterMail($payment));
-        // Mail::to($email_doctor)->send(new NewPaymentRegisterMail($payment));
-        
+
+        // Check if payment amount equals student's matricula amount
+        $student = $payment->student;
+        if ($student && $payment->monto == $student->matricula) {
+            $payment->status_deuda = 'PAID';
+            $payment->save();
+        }
+
         return response()->json([
             "message"=>200,
             "payment"=>$payment,
@@ -221,64 +220,6 @@ class AdminPaymentController extends Controller
     }
 
 
-     // subir imagen avatar
-     public function upload(Request $request)
-     {
-         // recoger la imagen de la peticion
-         $image = $request->file('file0');
-         // validar la imagen
-         $validate = \Validator::make($request->all(),[
-             'file0' => 'required|image|mimes:jpg,jpeg,png,gif'
-         ]);
-         //guardar la imagen en un disco
-         if(!$image || $validate->fails()){
-             $data = [
-                 'code' => 400,
-                 'status' => 'error',
-                 'message' => 'Error al subir la imagen'
-             ];
-         }else{
-            $extension = $image->getClientOriginalExtension();
-            $image_name = $image->getClientOriginalName();
-            $pathFileName = trim(pathinfo($image_name, PATHINFO_FILENAME));
-            $secureMaxName = substr(Str::slug($image_name), 0, 90);
-            $image_name = now().$secureMaxName.'.'.$extension;
-
-             \Storage::disk('payments')->put($image_name, \File::get($image));
-
-             $data = [
-                 'code' => 200,
-                 'status' => 'success',
-                 'image' => $image_name
-             ];
-
-         }
-
-         //return response($data, $data['code'])->header('Content-Type', 'text/plain'); //devuelve el resultado
-
-         return response()->json($data, $data['code']);// devuelve un objeto json
-     }
-
-     public function getImage($filename)
-     {
-
-         //comprobar si existe la imagen
-         $isset = \Storage::disk('payments')->exists($filename);
-         if ($isset) {
-             $file = \Storage::disk('payments')->get($filename);
-             return new Response($file, 200);
-         } else {
-             $data = array(
-                 'status' => 'error',
-                 'code' => 404,
-                 'mesaje' => 'Imagen no existe',
-             );
-
-             return response()->json($data, $data['code']);
-         }
-
-     }
-
      public function deleteFotoPayment($id)
      {
          $payment = Payment::findOrFail($id);
@@ -341,21 +282,128 @@ class AdminPaymentController extends Controller
 
     public function pagosPendientesbyParent(Request $request, $parent_id)
     {
-        
-        $payments = Payment::where('status', 'PENDING')
-        ->where("parent_id", $parent_id)
-        ->orderBy("id", "desc")
-        ->with('student')
-        ->paginate(10);
-        
-        return response()->json([
-            "total"=>$payments->total(),
-            "payments"=> $payments,
-            // "students"=> $student,
-            // "payments"=> PaymentResource::make($payments)
-        ]);
+        $payments = Payment::where("parent_id", $parent_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->whereHas('student', function ($query) {
+                $query->whereColumn('payments.monto', '<', 'matricula');
+            })
+            ->orderBy("id", "desc")
+            ->with('student')
+            ->paginate(10);
 
+        return response()->json([
+            "total" => $payments->total(),
+            "payments" => $payments,
+        ]);
     }
 
+    /**
+     * Send enrollment notification emails to representatives at the end and beginning of the month.
+     */
+    public function sendEnrollmentNotificationEmails()
+    {
+        $now = Carbon::now();
+        $day = $now->day;
 
+        // Only proceed if today is between 28-31 or 1-3 of the month
+        if (($day >= 28 && $day <= 31) || ($day >= 1 && $day <= 3)) {
+            // Find students with pending enrollment payments or relevant criteria
+            $students = \App\Models\Student::whereHas('payments', function ($query) {
+                $query->where('status_deuda', '!=', 'PAID');
+            })->get();
+
+            foreach ($students as $student) {
+                $parent = $student->parent;
+                if ($parent && $parent->email) {
+                    Mail::to($parent->email)->send(new EnrollmentNotificationMail($student));
+                }
+            }
+
+            return response()->json([
+                'message' => 'Enrollment notification emails sent successfully.',
+                'date' => $now->toDateString(),
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Today is not within the notification period.',
+                'date' => $now->toDateString(),
+            ]);
+        }
+    }
+
+    /**
+     * Check if the representative (parent) and student have debt and the amount.
+     *
+     * @param int $parent_id
+     * @param int $student_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkDebtStatusByParent($parent_id)
+    {
+        // Sum unpaid payments for the representative (parent)
+        $parentDebt = Payment::where('parent_id', $parent_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->sum('monto');
+
+        // Get students with debt and their debt details
+        $studentsWithDebt = Payment::select('student_id', DB::raw('SUM(monto) as total_debt'), DB::raw('MIN(created_at) as earliest_debt_date'))
+            ->where('parent_id', $parent_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->groupBy('student_id')
+            ->with('student:id,name,matricula') // assuming student has 'name' attribute
+            ->get();
+
+        $studentsDebtDetails = $studentsWithDebt->map(function ($item) {
+            return [
+                'student_id' => $item->student_id,
+                'student_name' => $item->student ? $item->student->name : null,
+                'matricula' => $item->student ? $item->student->matricula : null,
+                'debt_amount' => $item->total_debt,
+                'earliest_debt_date' => $item->earliest_debt_date,
+            ];
+        });
+
+        return response()->json([
+            'parent_id' => $parent_id,
+            'parent_has_debt' => $parentDebt > 0,
+            'parent_debt_amount' => $parentDebt,
+            'students_with_debt' => $studentsDebtDetails,
+        ]);
+    }
+    public function checkDebtStatus($parent_id, $student_id)
+    {
+        // Sum unpaid payments for the representative (parent)
+        $parentDebt = Payment::where('parent_id', $parent_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->sum('monto');
+
+        // Sum unpaid payments for the student
+        $studentDebt = Payment::where('student_id', $student_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->sum('monto');
+
+        return response()->json([
+            'parent_id' => $parent_id,
+            'student_id' => $student_id,
+            'parent_has_debt' => $parentDebt > 0,
+            'parent_debt_amount' => $parentDebt,
+            'student_has_debt' => $studentDebt > 0,
+            'student_debt_amount' => $studentDebt,
+        ]);
+    }
 }
