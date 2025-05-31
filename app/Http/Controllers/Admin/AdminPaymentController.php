@@ -299,6 +299,7 @@ class AdminPaymentController extends Controller
             "payments" => $payments,
         ]);
     }
+    
 
     /**
      * Send enrollment notification emails to representatives at the end and beginning of the month.
@@ -404,6 +405,121 @@ class AdminPaymentController extends Controller
             'parent_debt_amount' => $parentDebt,
             'student_has_debt' => $studentDebt > 0,
             'student_debt_amount' => $studentDebt,
+        ]);
+    }
+
+    /**
+     * View the debt of each student for a given parent (representative).
+     *
+     * @param int $parent_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function viewDebtByParent($parent_id)
+    {
+        // Get students of the parent with their total debt amount
+        $studentsWithDebt = Payment::select('student_id', DB::raw('SUM(monto) as total_debt'))
+            ->where('parent_id', $parent_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->groupBy('student_id')
+            ->with('student:id,name,matricula') // assuming student has 'name' attribute
+            ->get();
+
+        $studentsDebtDetails = $studentsWithDebt->map(function ($item) {
+            return [
+                'student_id' => $item->student_id,
+                'student_name' => $item->student ? $item->student->name : null,
+                'matricula' => $item->student ? $item->student->matricula : null,
+                'debt_amount' => $item->total_debt,
+            ];
+        });
+
+        return response()->json([
+            'parent_id' => $parent_id,
+            'students_with_debt' => $studentsDebtDetails,
+        ]);
+    }
+
+    /**
+     * Pay the debt for a student under a parent.
+     * Creates a payment and updates status_deuda to PAID if amount equals debt.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $parent_id
+     * @param int $student_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function payDebtForStudent(Request $request, $parent_id, $student_id)
+    {
+        $monto = $request->input('monto');
+        if (!is_numeric($monto) || $monto <= 0) {
+            return response()->json(['error' => 'Invalid payment amount'], 400);
+        }
+
+        // Calculate current debt for the student under the parent
+        $currentDebt = Payment::where('parent_id', $parent_id)
+            ->where('student_id', $student_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->sum('monto');
+
+        if ($monto > $currentDebt) {
+            return response()->json(['error' => 'Payment amount exceeds current debt'], 400);
+        }
+
+        // Create new payment record
+        $payment = new Payment();
+        $payment->parent_id = $parent_id;
+        $payment->student_id = $student_id;
+        $payment->monto = $monto;
+        $payment->status_deuda = ($monto == $currentDebt) ? 'PAID' : 'PENDING';
+        // $payment->status = 'PAID'; // Assuming payment status is PAID when payment is made
+        $payment->metodo = $request->metodo;
+        $payment->referencia = $request->referencia;
+        $payment->bank_name = $request->bank_name;
+        $payment->bank_destino = $request->bank_destino;
+        $payment->nombre = $request->nombre;
+        $payment->email = $request->email;
+        $payment->avatar = $request->avatar;
+        $payment->status = $request->status;
+        $payment->save();
+
+        // Update existing unpaid debts by applying the payment amount
+        $remainingAmount = $monto;
+        $unpaidDebts = Payment::where('parent_id', $parent_id)
+            ->where('student_id', $student_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        foreach ($unpaidDebts as $debt) {
+            if ($remainingAmount <= 0) {
+                break;
+            }
+
+            if ($debt->monto <= $remainingAmount) {
+                // Mark this debt as paid
+                $debt->status_deuda = 'PAID';
+                $debt->status = 'APPROVED';
+                $remainingAmount -= $debt->monto;
+            } else {
+                // Partial payment: reduce the debt amount
+                $debt->monto -= $remainingAmount;
+                $remainingAmount = 0;
+            }
+            $debt->save();
+        }
+
+        return response()->json([
+            'message' => 'Payment recorded successfully and debt updated',
+            'payment' => $payment,
         ]);
     }
 }

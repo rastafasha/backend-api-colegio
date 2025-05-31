@@ -56,3 +56,9 @@ Route::get('/payment/check-debt-status/{parent_id}/{student_id}', [AdminPaymentC
     ->name('payment.checkDebtStatus');
 Route::get('/payment/check-debt-status-p/{parent_id}', [AdminPaymentController::class, 'checkDebtStatusByParent'])
     ->name('payment.checkDebtStatusByParent');
+
+Route::get('/payment/debt-by-parent/{parent_id}', [AdminPaymentController::class, 'viewDebtByParent'])
+    ->name('payment.viewDebtByParent');
+
+Route::post('/payment/pay-debt/{parent_id}/{student_id}', [AdminPaymentController::class, 'payDebtForStudent'])
+    ->name('payment.payDebtForStudent');
