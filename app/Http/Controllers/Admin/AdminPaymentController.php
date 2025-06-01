@@ -171,6 +171,9 @@ class AdminPaymentController extends Controller
             $debt->save();
         }
 
+        //envio de correo al doctor
+        // Mail::to($appointment->doctor->email)->send(new NewPaymentRegisterMail($payment));
+
         return response()->json([
             'message' => 'Payment recorded successfully and debt updated',
             'payment' => $payment,
