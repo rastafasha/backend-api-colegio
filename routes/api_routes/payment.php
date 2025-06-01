@@ -28,6 +28,7 @@ Route::get('payment/recientes/', [AdminPaymentController::class, 'recientes'])
 
 Route::get('payment/pendientes', [AdminPaymentController::class, 'pagosPendientes'])
     ->name('payment.pagosPendientes');
+
 Route::get('payment/pendientesbydoctor/{doctor_id}', [AdminPaymentController::class, 'pagosPendientesShowId'])
     ->name('payment.pagosPendientesShowId');
 
@@ -43,8 +44,8 @@ Route::get('/payment/search/', [AdminPaymentController::class, 'search'])
 Route::get('/payment/pagosbyUser/{id}', [AdminPaymentController::class, 'pagosbyUser'])
     ->name('payment.pagosbyUser');
 
-Route::get('/payment/pendientesbyParent/{id}', [AdminPaymentController::class, 'pagosPendientesbyParent'])
-    ->name('payment.pagosPendientesbyParent');
+Route::get('/payment/pendientesbyStudent/{id}', [AdminPaymentController::class, 'pagosPendientesbyStudent'])
+    ->name('payment.pagosPendientesbyStudent');
 
 Route::put('/payment/update/status/{payment:id}', [AdminPaymentController::class, 'updateStatus'])
     ->name('payment.updateStatus');

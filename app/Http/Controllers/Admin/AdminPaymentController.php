@@ -106,6 +106,7 @@ class AdminPaymentController extends Controller
             ->where('student_id', $student_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
+                      ->where('status', '!=', 'PAID')
                       ->orWhere('status', 'PENDING');
             })
             ->sum('monto');
@@ -327,7 +328,22 @@ class AdminPaymentController extends Controller
         ], 200);
     }
 
-    public function pagosPendientes()
+   
+
+    public function pagosPendientesbyStudent(Request $request, $student_id)
+    {
+        $payments = Payment::where("student_id", $student_id)
+        ->orderBy('created_at', 'DESC')
+        // ->with('student')
+        ->get();
+
+        return response()->json([
+            // "total" => $payments->total(),
+            "payments" => $payments,
+        ]);
+    }
+    
+     public function pagosPendientes()
     {
         
         $payments = Payment::where('status', 'PENDING')->orderBy("id", "desc")
@@ -338,27 +354,6 @@ class AdminPaymentController extends Controller
         ]);
 
     }
-
-    public function pagosPendientesbyParent(Request $request, $parent_id)
-    {
-        $payments = Payment::where("parent_id", $parent_id)
-            ->where(function ($query) {
-                $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status','=', 'PENDING');
-            })
-            ->whereHas('student', function ($query) {
-                $query->whereColumn('payments.monto', '<', 'matricula');
-            })
-            ->orderBy("id", "desc")
-            ->with('student')
-            ->paginate(10);
-
-        return response()->json([
-            "total" => $payments->total(),
-            "payments" => $payments,
-        ]);
-    }
-    
 
     /**
      * Send enrollment notification emails to representatives at the end and beginning of the month.
