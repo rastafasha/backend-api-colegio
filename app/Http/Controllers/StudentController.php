@@ -76,6 +76,9 @@ class StudentController extends Controller
 
         $student = Student::create($request->all());
 
+        // Generate initial debt for the newly registered student
+        app(\App\Http\Controllers\Admin\AdminPaymentController::class)->generateInitialDebtForStudent($student->id);
+
         $request->request->add([
             "student_id" =>$student->id
         ]);

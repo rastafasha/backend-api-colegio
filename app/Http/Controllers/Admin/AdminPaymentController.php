@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\Student;
 use App\Models\Tasabcv;
 use App\Helpers\Uploader;
 use Illuminate\Support\Str;
@@ -11,12 +13,11 @@ use Illuminate\Http\Request;
 use App\Models\Representante;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\EnrollmentNotificationMail;
 use App\Http\Resources\Appointment\Payment\PaymentResource;
 use App\Http\Resources\Appointment\Payment\PaymentCollection;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\EnrollmentNotificationMail;
-use Carbon\Carbon;
 
 class AdminPaymentController extends Controller
 {
@@ -529,7 +530,7 @@ class AdminPaymentController extends Controller
         }
 
         // Get all students with their parent (representative)
-        $students = \App\Models\Student::with('parent')->get();
+        $students = Student::with('parent')->get();
 
         foreach ($students as $student) {
             $parent = $student->parent;
@@ -571,6 +572,53 @@ class AdminPaymentController extends Controller
             'message' => 'Monthly debts generated successfully.',
             'date' => $now->toDateString(),
         ]);
+    }
+
+    /**
+     * Generate initial debt for a single student immediately upon registration.
+     *
+     * @param int $studentId
+     * @return void
+     */
+    public function generateInitialDebtForStudent($studentId)
+    {
+        $now = Carbon::now();
+        $student = Student::with('parent')->find($studentId);
+
+        if (!$student || !$student->parent) {
+            return;
+        }
+
+        $parent = $student->parent;
+
+        // Check if a debt payment for this month already exists for this parent and student
+        $existingDebt = Payment::where('parent_id', $parent->id)
+            ->where('student_id', $student->id)
+            ->whereDate('created_at', '>=', $now->startOfMonth())
+            ->whereDate('created_at', '<=', $now->endOfMonth())
+            ->where('status_deuda', '!=', 'PAID')
+            ->first();
+
+        if ($existingDebt) {
+            // Debt already generated for this month
+            return;
+        }
+
+        // Create new debt payment for the parent's matricula amount
+        $debtPayment = new Payment();
+        $debtPayment->parent_id = $parent->id;
+        $debtPayment->student_id = $student->id;
+        $debtPayment->monto = $student->matricula;
+        $debtPayment->status_deuda = 'DEUDA';
+        $debtPayment->status = 'PENDING';
+        $debtPayment->referencia = 'Initial debt for ' . $now->format('F Y');
+        $debtPayment->metodo = 'DEUDA';
+        $debtPayment->bank_name = '';
+        $debtPayment->bank_destino = '';
+        $debtPayment->nombre = $parent->name ?? '';
+        $debtPayment->email = $parent->email ?? '';
+        $debtPayment->avatar = null;
+        $debtPayment->save();
     }
 }
 
