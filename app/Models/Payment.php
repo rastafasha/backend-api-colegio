@@ -112,13 +112,49 @@ class Payment extends Model
 
 
     public function scopefilterAdvancePayment($query,
-    // $metodo, 
-    $search_referencia
+    $metodo, 
+    $search_referencia,
+    $bank_name,
+    $bank_destino,
+    $nombre,
+    $monto,
+    $fecha,
+           $deuda,
+$status_deuda,
+$status
     ){
         
         
         if($search_referencia){
             $query->where("referencia", $search_referencia);
+        }
+        if($metodo){
+            $query->where("metodo", $metodo);
+        }
+        if($bank_name){
+            $query->where("bank_name", $bank_name);
+        }
+        if($bank_destino){
+            $query->where("bank_destino", $bank_destino);
+        }
+        
+        if($nombre){
+            $query->where("nombre", $nombre);
+        }
+        if($monto){
+            $query->where("monto", $monto);
+        }
+        if($fecha){
+            $query->where("fecha", $fecha);
+        }
+        if($deuda){
+            $query->where("deuda", $deuda);
+        }
+        if($status_deuda){
+            $query->where("status_deuda", $status_deuda);
+        }
+        if($status){
+            $query->where("status", $status);
         }
         
         return $query;
@@ -129,7 +165,16 @@ class Payment extends Model
             return self::all();
         }
         return self::where('referencia', 'like', "%$query%")
-        
+        ->orWhere('metodo', 'like', "%$query%")
+        ->orWhere('bank_name', 'like', "%$query%")
+        ->orWhere('bank_destino', 'like', "%$query%")
+        ->orWhere('nombre', 'like', "%$query%")
+        ->orWhere('email', 'like', "%$query%")
+        ->orWhere('monto', 'like', "%$query%")
+        ->orWhere('fecha', 'like', "%$query%")
+        ->orWhere('deuda', 'like', "%$query%")
+        ->orWhere('status_deuda', 'like', "%$query%")
+        ->orWhere('status', 'like', "%$query%")
         ->get();
     }
 }

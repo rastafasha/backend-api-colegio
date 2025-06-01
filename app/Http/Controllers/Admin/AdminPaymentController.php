@@ -3,20 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Tasabcv;
 use App\Helpers\Uploader;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\Representante;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\EnrollmentNotificationMail;
-use App\Http\Resources\Appointment\Payment\PaymentResource;
 use App\Http\Resources\Appointment\Payment\PaymentCollection;
 
 class AdminPaymentController extends Controller
@@ -42,12 +38,25 @@ class AdminPaymentController extends Controller
         $metodo = $request->metodo;
         $search_referencia = $request->search_referencia;
         $bank_name = $request->bank_name;
+        $bank_destino = $request->bank_destino;
         $nombre = $request->nombre;
         $monto = $request->monto;
         $fecha = $request->fecha;
+        $deuda = $request->deuda;
+        $status_deuda = $request->status_deuda;
+        $status = $request->status;
 
 
-        $payments = Payment::filterAdvancePayment($search_referencia)->orderBy("id", "desc")
+        $payments = Payment::filterAdvancePayment($search_referencia, 
+        $bank_name, $bank_destino,
+        $monto,
+        $metodo,
+        $nombre,
+        $fecha,
+        $deuda,
+$status_deuda,
+$status,
+        )->orderBy("id", "desc")
                             ->paginate(1000);
                             // ->get();
                     

@@ -39,7 +39,12 @@ class Student extends Model
             return self::all();
         }
         return self::where('name', 'like', "%$query%")
-        
+         ->orWhere('surname', 'like', "%$query%")
+         ->orWhere('n_doc', 'like', "%$query%")
+         ->orWhere('school_year', 'like', "%$query%")
+        ->orWhere('section', 'like', "%$query%")
+        ->orWhere('matricula', 'like', "%$query%")
+        ->orWhere('gender', 'like', "%$query%")
         ->get();
     }
 }

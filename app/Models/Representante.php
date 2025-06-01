@@ -131,6 +131,7 @@ class Representante extends Model implements JWTSubject, AuthenticatableContract
             return self::all();
         }
         return self::where('name', 'like', "%$query%")
+        ->orWhere('surname', 'like', "%$query%")
         ->orWhere('email', 'like', "%$query%")
         ->get();
     }

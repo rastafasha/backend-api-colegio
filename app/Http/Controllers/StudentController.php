@@ -42,7 +42,7 @@ class StudentController extends Controller
     public function profile($id)
     {
         
-        $student = Student::findOrFail($id);
+        $student = App\Models\Student::findOrFail($id);
     
         return response()->json($student);
     }
