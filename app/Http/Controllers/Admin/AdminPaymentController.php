@@ -46,7 +46,8 @@ class AdminPaymentController extends Controller
 
 
         $payments = Payment::filterAdvancePayment($search_referencia)->orderBy("id", "desc")
-                            ->paginate(100);
+                            ->paginate(1000);
+                            // ->get();
                     
         return response()->json([
             "total"=>$payments->total(),
@@ -57,38 +58,86 @@ class AdminPaymentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Pay the debt for a student under a parent.
+     * Creates a payment and updates status_deuda to PAID if amount equals debt.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request
+     * @param int $parent_id
+     * @param int $student_id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function paymentStore(Request $request)
+    public function payDebtForStudent(Request $request, $parent_id, $student_id)
     {
-        // Sanitize 'monto' to remove commas and convert to float
-        if ($request->has('monto')) {
-            $monto = str_replace(',', '', $request->input('monto'));
-            $request->merge(['monto' => (float)$monto]);
+        $monto = $request->input('monto');
+        if (!is_numeric($monto) || $monto <= 0) {
+            return response()->json(['error' => 'Invalid payment amount'], 400);
         }
 
-        if($request->hasFile('imagen')){
-            $path = Storage::putFile("payments", $request->file('imagen'));
-            $request->request->add(["avatar"=>$path]);
+        // Calculate current debt for the student under the parent
+        $currentDebt = Payment::where('parent_id', $parent_id)
+            ->where('student_id', $student_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->sum('monto');
+
+        if ($monto > $currentDebt) {
+            return response()->json(['error' => 'Payment amount exceeds current debt'], 400);
         }
 
-        $payment = Payment::create($request->all());
+        // Create new payment record
+        $payment = new Payment();
+        $payment->parent_id = $parent_id;
+        $payment->student_id = $student_id;
+        $payment->monto = $monto;
+        $payment->status_deuda = ($monto == $currentDebt) ? 'PAID' : 'PENDING';
+        // $payment->status = 'PAID'; // Assuming payment status is PAID when payment is made
+        $payment->metodo = $request->metodo;
+        $payment->referencia = $request->referencia;
+        $payment->bank_name = $request->bank_name;
+        $payment->bank_destino = $request->bank_destino;
+        $payment->nombre = $request->nombre;
+        $payment->email = $request->email;
+        $payment->avatar = $request->avatar;
+        $payment->status = $request->status;
+        $payment->save();
 
-        // Check if payment amount equals student's matricula amount
-        $student = $payment->student;
-        if ($student && $payment->monto == $student->matricula) {
-            $payment->status_deuda = 'PAID';
-            $payment->save();
+        // Update existing unpaid debts by applying the payment amount
+        $remainingAmount = $monto;
+        $unpaidDebts = Payment::where('parent_id', $parent_id)
+            ->where('student_id', $student_id)
+            ->where(function ($query) {
+                $query->where('status_deuda', '!=', 'PAID')
+                      ->orWhere('status', 'PENDING');
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        foreach ($unpaidDebts as $debt) {
+            if ($remainingAmount <= 0) {
+                break;
+            }
+
+            if ($debt->monto <= $remainingAmount) {
+                // Mark this debt as paid
+                $debt->status_deuda = 'PAID';
+                $debt->status = 'APPROVED';
+                $remainingAmount -= $debt->monto;
+            } else {
+                // Partial payment: reduce the debt amount
+                $debt->monto -= $remainingAmount;
+                $remainingAmount = 0;
+            }
+            $debt->save();
         }
 
         return response()->json([
-            "message"=>200,
-            "payment"=>$payment,
+            'message' => 'Payment recorded successfully and debt updated',
+            'payment' => $payment,
         ]);
     }
+
 
     /**
      * Display the specified resource.
@@ -219,22 +268,6 @@ class AdminPaymentController extends Controller
         ], 200);
     }
 
-
-     public function deleteFotoPayment($id)
-     {
-         $payment = Payment::findOrFail($id);
-         \Storage::delete('payments/' . $payment->image);
-         $payment->image = '';
-         $payment->save();
-         return response()->json([
-             'data' => $payment,
-             'msg' => [
-                 'summary' => 'Archivo eliminado',
-                 'detail' => '',
-                 'code' => ''
-             ]
-         ]);
-     }
 
      public function search(Request $request){
         return Payment::search($request->buscar);

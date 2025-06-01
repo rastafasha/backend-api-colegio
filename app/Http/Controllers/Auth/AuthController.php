@@ -54,7 +54,7 @@ class AuthController extends Controller
             'user'=>[
                 "id"=>auth('api')->user()->id,
                 "username"=>auth('api')->user()->username,
-                // "avatar"=>auth('api')->user()->avatar,
+                "avatar"=>auth('api')->user()->avatar,
                 // "rolename"=>auth('api')->user()->rolename,
                 "roles"=>auth('api')->user()->getRoleNames(),
                 "email"=>auth('api')->user()->email,
@@ -87,7 +87,7 @@ class AuthController extends Controller
                 "id"=>auth('parent-api')->user()->id,
                 "name"=>auth('parent-api')->user()->name,
                 "surname"=>auth('parent-api')->user()->surname,
-                // "avatar"=>auth('parent-api')->user()->avatar,
+                "avatar"=>auth('parent-api')->user()->avatar,
                 // "rolename"=>auth('parent-api')->user()->rolename,
                 "roles"=>auth('parent-api')->user()->getRoleNames(),
                 "email"=>auth('parent-api')->user()->email,
