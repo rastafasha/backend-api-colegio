@@ -243,10 +243,18 @@ class AdminPaymentController extends Controller
 
 
 
-   public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id)
     {
         $payment = Payment::findOrfail($id);
         $payment->status = $request->status;
+
+        if ($request->status === 'REJECTED') {
+            $payment->status_deuda = 'DEUDA';
+        }
+        if ($request->status === 'APPROVED') {
+            $payment->status_deuda = 'PAID';
+        }
+
         $payment->update();
         return $payment;
     }
@@ -421,6 +429,7 @@ class AdminPaymentController extends Controller
             ->where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
+                ->where('status',  'REJECTED')
                       ->orWhere('status', 'PENDING');
             })
             ->groupBy('student_id')
@@ -458,6 +467,12 @@ class AdminPaymentController extends Controller
             return response()->json(['error' => 'Invalid payment amount'], 400);
         }
 
+         if($request->hasFile('imagen')){
+            $path = Storage::putFile("payments", $request->file('imagen'));
+            $request->request->add(["avatar"=>$path]);
+        }
+
+
         // Calculate current debt for the student under the parent
         $currentDebt = Payment::where('parent_id', $parent_id)
             ->where('student_id', $student_id)
@@ -484,8 +499,8 @@ class AdminPaymentController extends Controller
         $payment->bank_destino = $request->bank_destino;
         $payment->nombre = $request->nombre;
         $payment->email = $request->email;
-        $payment->avatar = $request->avatar;
         $payment->status = $request->status;
+        $payment->avatar = $request->avatar;
         $payment->save();
 
         // Update existing unpaid debts by applying the payment amount
