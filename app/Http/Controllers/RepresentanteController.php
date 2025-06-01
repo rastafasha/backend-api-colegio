@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Representante\RepresntanteResource;
-
+use Illuminate\Support\Facades\Storage;
 class RepresentanteController extends Controller
 {
     /**
@@ -70,6 +70,11 @@ class RepresentanteController extends Controller
                 "message"=>403,
                 "message_text"=> 'el usuario con este email ya existe'
             ]);
+        }
+
+        if($request->hasFile('imagen')){
+            $path = Storage::putFile("parents", $request->file('imagen'));
+            $request->request->add(["avatar"=>$path]);
         }
         
         $representante = Representante::findOrFail($id);

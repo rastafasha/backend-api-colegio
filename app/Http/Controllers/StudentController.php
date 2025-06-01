@@ -142,14 +142,14 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $student_is_valid = Student::where("id", "<>", $id)->where("n_doc", $request->n_doc)->first();
+        // $student_is_valid = Student::where("id", "<>", $id)->where("n_doc", $request->n_doc)->first();
 
-        if($student_is_valid){
-            return response()->json([
-                "message"=>403,
-                "message_text"=> 'el paciente ya existe'
-            ]);
-        }
+        // if($student_is_valid){
+        //     return response()->json([
+        //         "message"=>403,
+        //         "message_text"=> 'el paciente ya existe'
+        //     ]);
+        // }
         
         $student = Student::findOrFail($id);
         if($request->hasFile('imagen')){
@@ -164,11 +164,7 @@ class StudentController extends Controller
             $date_clean = preg_replace('/\(.*\)|[A-Z]{3}-\d{4}/', '',$request->birth_date );
             $request->request->add(["birth_date" => Carbon::parse($date_clean)->format('Y-m-d h:i:s')]);
         }
-        //uso de redis
-        // $cachedRecord = Redis::get('profile_patient_#'.$id);
-        // if(isset($cachedRecord)) {
-        //     Redis::del('profile_patient_#'.$id);
-        // }
+        
         $student->update($request->all());
 
         return response()->json([

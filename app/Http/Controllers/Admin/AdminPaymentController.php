@@ -460,81 +460,67 @@ class AdminPaymentController extends Controller
      * @param int $student_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function payDebtForStudent(Request $request, $parent_id, $student_id)
+    /**
+     * Generate monthly debt for representatives based on student's matricula.
+     * This function should be called after the first day of the month.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function generateMonthlyDebtForParents()
     {
-        $monto = $request->input('monto');
-        if (!is_numeric($monto) || $monto <= 0) {
-            return response()->json(['error' => 'Invalid payment amount'], 400);
+        $now = Carbon::now();
+
+        // Check if today is the first day of the month
+        if ($now->day !== 1) {
+            return response()->json([
+                'message' => 'Today is not the first day of the month.',
+                'date' => $now->toDateString(),
+            ]);
         }
 
-         if($request->hasFile('imagen')){
-            $path = Storage::putFile("payments", $request->file('imagen'));
-            $request->request->add(["avatar"=>$path]);
-        }
+        // Get all students with their parent (representative)
+        $students = \App\Models\Student::with('parent')->get();
 
-
-        // Calculate current debt for the student under the parent
-        $currentDebt = Payment::where('parent_id', $parent_id)
-            ->where('student_id', $student_id)
-            ->where(function ($query) {
-                $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
-            })
-            ->sum('monto');
-
-        if ($monto > $currentDebt) {
-            return response()->json(['error' => 'Payment amount exceeds current debt'], 400);
-        }
-
-        // Create new payment record
-        $payment = new Payment();
-        $payment->parent_id = $parent_id;
-        $payment->student_id = $student_id;
-        $payment->monto = $monto;
-        $payment->status_deuda = ($monto == $currentDebt) ? 'PAID' : 'PENDING';
-        // $payment->status = 'PAID'; // Assuming payment status is PAID when payment is made
-        $payment->metodo = $request->metodo;
-        $payment->referencia = $request->referencia;
-        $payment->bank_name = $request->bank_name;
-        $payment->bank_destino = $request->bank_destino;
-        $payment->nombre = $request->nombre;
-        $payment->email = $request->email;
-        $payment->status = $request->status;
-        $payment->avatar = $request->avatar;
-        $payment->save();
-
-        // Update existing unpaid debts by applying the payment amount
-        $remainingAmount = $monto;
-        $unpaidDebts = Payment::where('parent_id', $parent_id)
-            ->where('student_id', $student_id)
-            ->where(function ($query) {
-                $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
-            })
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        foreach ($unpaidDebts as $debt) {
-            if ($remainingAmount <= 0) {
-                break;
+        foreach ($students as $student) {
+            $parent = $student->parent;
+            if (!$parent) {
+                continue;
             }
 
-            if ($debt->monto <= $remainingAmount) {
-                // Mark this debt as paid
-                $debt->status_deuda = 'PAID';
-                $debt->status = 'APPROVED';
-                $remainingAmount -= $debt->monto;
-            } else {
-                // Partial payment: reduce the debt amount
-                $debt->monto -= $remainingAmount;
-                $remainingAmount = 0;
+            // Check if a debt payment for this month already exists for this parent and student
+            $existingDebt = Payment::where('parent_id', $parent->id)
+                ->where('student_id', $student->id)
+                ->whereDate('created_at', '>=', $now->startOfMonth())
+                ->whereDate('created_at', '<=', $now->endOfMonth())
+                ->where('status_deuda', '!=', 'PAID')
+                ->first();
+
+            if ($existingDebt) {
+                // Debt already generated for this month
+                continue;
             }
-            $debt->save();
+
+            // Create new debt payment for the parent's matricula amount
+            $debtPayment = new Payment();
+            $debtPayment->parent_id = $parent->id;
+            $debtPayment->student_id = $student->id;
+            $debtPayment->monto = $student->matricula;
+            $debtPayment->status_deuda = 'DEUDA';
+            $debtPayment->status = 'PENDING';
+            $debtPayment->referencia = 'Monthly debt for ' . $now->format('F Y');
+            $debtPayment->metodo = 'DEUDA';
+            $debtPayment->bank_name = '';
+            $debtPayment->bank_destino = '';
+            $debtPayment->nombre = $parent->name ?? '';
+            $debtPayment->email = $parent->email ?? '';
+            $debtPayment->avatar = null;
+            $debtPayment->save();
         }
 
         return response()->json([
-            'message' => 'Payment recorded successfully and debt updated',
-            'payment' => $payment,
+            'message' => 'Monthly debts generated successfully.',
+            'date' => $now->toDateString(),
         ]);
     }
 }
+

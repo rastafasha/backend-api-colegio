@@ -62,3 +62,6 @@ Route::get('/payment/debt-by-parent/{parent_id}', [AdminPaymentController::class
 
 Route::post('/payment/pay-debt/{parent_id}/{student_id}', [AdminPaymentController::class, 'payDebtForStudent'])
     ->name('payment.payDebtForStudent');
+
+Route::post('/payment/generate-monthly-debt', [AdminPaymentController::class, 'generateMonthlyDebtForParents'])
+    ->name('payment.generateMonthlyDebtForParents');
