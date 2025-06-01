@@ -18,19 +18,21 @@ class RepresentanteController extends Controller
      */
     public function index()
     {
-
         
-        $roles = Role::get();
+
         $representantes = Representante::orderBy('id', 'desc')
-        ->with('roles')
+            
+            ->with(['payments' => function ($query) {
+                $query->where('status_deuda', 'DEUDA')->select('id', 'parent_id', 'status_deuda');
+            }])
             ->get();
 
-            return response()->json([
-                'code' => 200,
-                'status' => 'Listar todos los Usuarios',
-                "representantes" => $representantes
-                // "representantes" => RepresntanteResource::make($representantes)
-            ], 200);
+        return response()->json([
+            'code' => 200,
+            'status' => 'Listar todos los Usuarios con pagos en deuda',
+            'representantes' => $representantes
+            // "representantes" => RepresntanteResource::make($representantes)
+        ], 200);
     }
 
     

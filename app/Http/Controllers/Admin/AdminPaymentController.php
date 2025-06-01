@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\Tasabcv;
 use App\Helpers\Uploader;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -68,9 +69,35 @@ class AdminPaymentController extends Controller
      */
     public function payDebtForStudent(Request $request, $parent_id, $student_id)
     {
+
+
+        if($request->hasFile('imagen')){
+            $path = Storage::putFile("payments", $request->file('imagen'));
+            $request->request->add(["avatar"=>$path]);
+        }
+
         $monto = $request->input('monto');
+        $metodo = $request->input('metodo');
+
+        // Remove commas from monto string to allow numeric check
+        $monto = str_replace(',', '', $monto);
+
         if (!is_numeric($monto) || $monto <= 0) {
             return response()->json(['error' => 'Invalid payment amount'], 400);
+        }
+
+        $monto = floatval($monto);
+
+        $originalMonto = $monto;
+
+        if ($metodo === 'Transferencia Bolívares' || $metodo === 'Pago Móvil') {
+            $tasabcv = Tasabcv::latest()->first();
+            if ($tasabcv && $tasabcv->precio_dia > 0) {
+                // Adjust monto by dividing by precio_dia to get comparable amount
+                $monto = $monto / $tasabcv->precio_dia;
+            } else {
+                return response()->json(['error' => 'Precio dia not found or invalid'], 400);
+            }
         }
 
         // Calculate current debt for the student under the parent
@@ -82,8 +109,14 @@ class AdminPaymentController extends Controller
             })
             ->sum('monto');
 
+        // Debug logs for troubleshooting
+        \Log::info("payDebtForStudent: originalMonto={$originalMonto}, adjustedMonto={$monto}, currentDebt={$currentDebt}, metodo={$metodo}");
+
         if ($monto > $currentDebt) {
-            return response()->json(['error' => 'Payment amount exceeds current debt'], 400);
+            // Allow small floating point tolerance
+            if (($monto - $currentDebt) > 0.01) {
+                return response()->json(['error' => 'Payment amount exceeds current debt'], 400);
+            }
         }
 
         // Create new payment record
@@ -91,9 +124,15 @@ class AdminPaymentController extends Controller
         $payment->parent_id = $parent_id;
         $payment->student_id = $student_id;
         $payment->monto = $monto;
-        $payment->status_deuda = ($monto == $currentDebt) ? 'PAID' : 'PENDING';
+
+        if ($metodo === 'Transferencia Dólares' || $metodo === 'Transferencia Bolívares' || $metodo === 'Pago Móvil') {
+            $payment->status_deuda = (abs($monto - $currentDebt) < 0.01) ? 'PAID' : 'PENDING';
+        } else {
+            $payment->status_deuda = (abs($monto - $currentDebt) < 0.01) ? 'PAID' : 'PENDING';
+        }
+
         // $payment->status = 'PAID'; // Assuming payment status is PAID when payment is made
-        $payment->metodo = $request->metodo;
+        $payment->metodo = $metodo;
         $payment->referencia = $request->referencia;
         $payment->bank_name = $request->bank_name;
         $payment->bank_destino = $request->bank_destino;
@@ -229,32 +268,7 @@ class AdminPaymentController extends Controller
         }
     }
 
-    protected function paymentInput(string $file = null): array
-    {
-        return [
-            "referencia" => request("referencia"),
-            "metodo" => request("metodo"),
-            "bank_name" => request("bank_name"),
-            "monto" => request("monto"),
-            "validacion" => request("validacion"),
-            "currency_id" => request("currency_id"),
-            "nombre" => request("nombre"),
-            "email" => request("email"),
-            "user_id" => request("user_id"),
-            "plan_id" => request("plan_id"),
-            "status" => request("status"),
-            "image" => $file,
-        ];
-    }
-
-    protected function paymentInputUpdate(string $file = null): array
-    {
-        return [
-            "validacion" => request("validacion"),
-            "status" => request("status"),
-        ];
-    }
-
+   
     public function recientes()
     {
         $payments = Payment::orderBy('created_at', 'DESC')
@@ -326,7 +340,7 @@ class AdminPaymentController extends Controller
         $payments = Payment::where("parent_id", $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                      ->orWhere('status','=', 'PENDING');
             })
             ->whereHas('student', function ($query) {
                 $query->whereColumn('payments.monto', '<', 'matricula');
@@ -389,7 +403,7 @@ class AdminPaymentController extends Controller
         $parentDebt = Payment::where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                      ->orWhere('status', '=','PENDING');
             })
             ->sum('monto');
 
@@ -398,7 +412,7 @@ class AdminPaymentController extends Controller
             ->where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                      ->orWhere('status', '=','PENDING');
             })
             ->groupBy('student_id')
             ->with('student:id,name,matricula') // assuming student has 'name' attribute
@@ -427,7 +441,7 @@ class AdminPaymentController extends Controller
         $parentDebt = Payment::where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                      ->orWhere('status', '=','PENDING');
             })
             ->sum('monto');
 
@@ -435,7 +449,7 @@ class AdminPaymentController extends Controller
         $studentDebt = Payment::where('student_id', $student_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                      ->orWhere('status', '=','PENDING');
             })
             ->sum('monto');
 
@@ -462,8 +476,8 @@ class AdminPaymentController extends Controller
             ->where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                ->where('status',  'REJECTED')
-                      ->orWhere('status', 'PENDING');
+                ->where('status','=',  'REJECTED')
+                      ->orWhere('status','=', 'PENDING');
             })
             ->groupBy('student_id')
             ->with('student:id,name,matricula') // assuming student has 'name' attribute

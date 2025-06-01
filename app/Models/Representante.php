@@ -122,7 +122,7 @@ class Representante extends Model implements JWTSubject, AuthenticatableContract
     }
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class, 'parent_id');
     }
 
     // buscador
