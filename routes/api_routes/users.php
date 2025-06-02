@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminUserSoftDeletesController;
 //Admin Usuarios
 Route::get('/users', [AdminUserController::class, 'index'])
     ->name('users.index');
+    
 Route::get('/users/config/', [AdminUserController::class, 'config'])
     ->name('users.config');
 

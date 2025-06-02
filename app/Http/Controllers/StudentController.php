@@ -188,8 +188,6 @@ class StudentController extends Controller
         if($student->avatar){
             Storage::delete($student->avatar);
         }
-        
-        
         $student->delete();
         return response()->json([
             "message"=>200
