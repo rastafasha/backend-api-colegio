@@ -30,7 +30,7 @@ class NewPaymentRegisterMail extends Mailable
      */
     public function build()
     {
-        return $this->from('soporte@ursigalletti.net', 'Sistema Automatizado de Envio de Notificaciones por correo')
+        return $this->from('mercadocreativo@gmail.com', 'Sistema Automatizado de Envio de Notificaciones por correo')
             ->subject('Registro de un nuevo pago')
             ->markdown('emails.admin.new_payment_register' , ['payment' => $this->payment]);
     }

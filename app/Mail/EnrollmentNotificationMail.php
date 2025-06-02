@@ -32,7 +32,7 @@ class EnrollmentNotificationMail extends Mailable
      */
     public function build()
     {
-        return $this->from('soporte@ursigalletti.net', 'Sistema Automatizado de Envio de Notificaciones por correo')
+        return $this->from('mercadocreativo@gmail.com', 'Sistema Automatizado de Envio de Notificaciones por correo')
             ->subject('Notificación de Matrícula del Estudiante')
             ->markdown('emails.enrollment_notification', ['student' => $this->student]);
     }

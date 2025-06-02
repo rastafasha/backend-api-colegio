@@ -92,18 +92,16 @@ class tiposdepagoController extends Controller
     public function paymentUpdate(Request $request, $id)
     {
        $tipodepago = Tiposdepago::findOrfail($id);
-        $tipodepago->bankAccount = $request->bankAccount;
-        $tipodepago->bankAccountType = $request->bankAccountType;
-        $tipodepago->bankName = $request->bankName;
-        $tipodepago->ciorif = $request->ciorif;
-        $tipodepago->clientId = $request->clientId;
-        $tipodepago->email = $request->email;
         $tipodepago->id = $request->id;
-        $tipodepago->paypalSecret = $request->paypalSecret;
-        $tipodepago->sandoxMode = $request->sandoxMode;
-        $tipodepago->telefono = $request->telefono;
-        $tipodepago->type = $request->type;
-        $tipodepago->user = $request->user;
+        // $tipodepago->bankAccount = $request->bankAccount;
+        // $tipodepago->bankAccountType = $request->bankAccountType;
+        // $tipodepago->bankName = $request->bankName;
+        // $tipodepago->ciorif = $request->ciorif;
+        $tipodepago->status = $request->status;
+        // $tipodepago->email = $request->email;
+        // $tipodepago->telefono = $request->telefono;
+        // $tipodepago->type = $request->type;
+        // $tipodepago->user = $request->user;
         
         
         
