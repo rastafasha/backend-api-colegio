@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MateriaController;
+use App\Http\Controllers\CalificacionController;
+
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ContactFormController;
@@ -74,6 +76,12 @@ Route::group(['middleware' => 'api'], function ($router) {
     // moroso
     require __DIR__ . '/api_routes/moroso.php';
     
+    // materias
+    require __DIR__ . '/api_routes/materias.php';
+    
+    // calificaciones
+    require __DIR__ . '/api_routes/calificaciones.php';
+    
 
 
 
@@ -122,5 +130,7 @@ Route::group(['middleware' => 'api'], function ($router) {
     // Route::get('/categories', [CategoryController::class, 'index'])
     //     ->name('category.index');
 
-
+    Route::apiResource('materias', MateriaController::class);
+    Route::apiResource('calificaciones', CalificacionController::class);
+    Route::get('calificaciones/pdf/{studentId}', [CalificacionController::class, 'generatePdf']);
 });

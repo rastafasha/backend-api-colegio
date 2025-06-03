@@ -47,4 +47,9 @@ class Student extends Model
         ->orWhere('gender', 'like', "%$query%")
         ->get();
     }
+
+    public function calificaciones()
+    {
+        return $this->hasMany(Calificacion::class);
+    }
 }
