@@ -108,6 +108,33 @@ class UserSeeder extends Seeder
                 ],
                 "email_verified_at" => now(),
                 "created_at" => now(),
+            ],
+            [
+                // "rolename" => User::GUEST,
+                "name" => "maestro",
+                'surname' => 'Johnson',
+                "email" => "maestro@maestro.com",
+                'gender' => 1,
+                'materia_id' => null,
+                "password" => bcrypt("password"),
+                'roles' => [
+                    [
+                        "id"=> 9,
+                        "name"=> "MAESTRO",
+                        "guard_name"=> "api",
+                        "created_at"=> "2025-02-16T06:49:18.000000Z",
+                        "updated_at"=> "2025-02-16T06:49:18.000000Z",
+                    ],
+                    'pivot' => [
+                        [
+                            "model_id"=> 11,
+                            "role_id"=> 11,   
+                            "model_type"=> "App\\Models\\User"
+                        ]
+                    ],
+                ],
+                "email_verified_at" => now(),
+                "created_at" => now(),
             ]
         ];
 

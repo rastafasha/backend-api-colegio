@@ -97,12 +97,14 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        $student = Student::findOrFail($id);
+        $student = Student::find($id);
 
         return response()->json([
             // "student" => StudentResource::make($student),
             "student" => $student,
         ]);
+
+       
     }
 
     public function studentbyParent(Request $request, $parent_id)

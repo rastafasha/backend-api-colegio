@@ -21,12 +21,18 @@ class Student extends Model
         'parent_id',
         'section',
         'matricula',
+        'user_id',
     ];
 
 
     public function parent()
     {
         return $this->belongsTo(Representante::class, 'parent_id');
+    }
+
+    public function maestro()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function payments()

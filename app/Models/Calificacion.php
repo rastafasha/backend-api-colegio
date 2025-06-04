@@ -15,7 +15,10 @@ class Calificacion extends Model
         'student_id',
         'materia_id',
         'grade',
+        'semestre',
+        'anio_escolar',
     ];
+
 
     public function student()
     {
@@ -26,4 +29,16 @@ class Calificacion extends Model
     {
         return $this->belongsTo(Materia::class);
     }
+
+    public static function search($query = ''){
+        if(!$query){
+            return self::all();
+        }
+        return self::where('semestre', 'like', "%$query%")
+         ->orWhere('anio_escolar', 'like', "%$query%")
+         ->orWhere('materia_id', 'like', "%$query%")
+         ->orWhere('student_id', 'like', "%$query%")
+        ->get();
+    }
+
 }

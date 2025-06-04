@@ -29,10 +29,18 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
-        'email',
-        'password',
-        //
         'surname',
+        'mobile',
+        'birth_date',
+        'gender',
+        'status',
+        'address',
+        'avatar',
+        'n_doc',
+        'email',
+        'email_verified_at',
+        'password',
+        'materia_id',
 
     ];
 
@@ -123,6 +131,15 @@ class User extends Authenticatable implements JWTSubject
         return self::where('name', 'like', "%$query%")
         ->orWhere('email', 'like', "%$query%")
         ->get();
+    }
+
+     public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
+    public function materia()
+    {
+        return $this->belongsTo(Materia::class);
     }
     
 

@@ -46,6 +46,8 @@ class PermissionsDemoSeeder extends Seeder
 
         $role4 = Role::create(['guard_name' => 'parent-api', 'name' => 'GUEST']);
 
+        $role5 = Role::create(['guard_name' => 'api', 'name' => 'MAESTRO']);
+
         // create demo users
         // $user = \App\Models\User::factory()->create([
         //     'name' => 'Example User',

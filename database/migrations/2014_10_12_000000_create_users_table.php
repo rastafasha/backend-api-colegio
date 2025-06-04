@@ -30,6 +30,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique()->comment('User email for login');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->comment('Hashed password');
+            $table->unsignedBigInteger('materia_id')->nullable();
 
             $table->rememberToken()->comment('For "remember me" functionality');
             $table->timestamps();

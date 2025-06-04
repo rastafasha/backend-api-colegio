@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
-class CreateCalificacionesTable extends Migration
+class CreateExamenesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,19 @@ class CreateCalificacionesTable extends Migration
      */
     public function up()
     {
-        Schema::create('calificaciones', function (Blueprint $table) {
+        Schema::create('examenes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('student_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('materia_id');
-            $table->decimal('grade', 5, 2);
-            $table->tinyInteger('semestre');
-            $table->string('anio_escolar', 20);
+            $table->string('title');
+            $table->date('exam_date')->nullable();
+            $table->decimal('puntaje', 8, 2)->nullable();
+            $table->string('puntaje_letra')->nullable();
             $table->timestamps();
 
             $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('materia_id')->references('id')->on('materias')->onDelete('cascade');
         });
     }
@@ -34,6 +37,6 @@ class CreateCalificacionesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('calificaciones');
+        Schema::dropIfExists('examenes');
     }
 }

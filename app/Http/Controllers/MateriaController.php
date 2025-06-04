@@ -10,7 +10,10 @@ class MateriaController extends Controller
     public function index()
     {
         $materias = Materia::all();
-        return response()->json($materias);
+        return response()->json([
+            "materias" => $materias,
+            
+        ]);  
     }
 
     public function show($id)

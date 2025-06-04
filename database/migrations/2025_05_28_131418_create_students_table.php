@@ -26,11 +26,13 @@ class CreateStudentsTable extends Migration
             $table->string('avatar')->nullable();
 
             $table->unsignedBigInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('parent_id')->references('id')->on('representantes')->nullOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
         });
     }
 

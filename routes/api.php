@@ -76,11 +76,16 @@ Route::group(['middleware' => 'api'], function ($router) {
     // moroso
     require __DIR__ . '/api_routes/moroso.php';
     
+    // admindashboard
+    require __DIR__ . '/api_routes/admindashboard.php';
+    
     // materias
     require __DIR__ . '/api_routes/materias.php';
-    
     // calificaciones
     require __DIR__ . '/api_routes/calificaciones.php';
+    
+    // examen
+    require __DIR__ . '/api_routes/examen.php';
     
 
 
@@ -130,7 +135,5 @@ Route::group(['middleware' => 'api'], function ($router) {
     // Route::get('/categories', [CategoryController::class, 'index'])
     //     ->name('category.index');
 
-    Route::apiResource('materias', MateriaController::class);
-    Route::apiResource('calificaciones', CalificacionController::class);
-    Route::get('calificaciones/pdf/{studentId}', [CalificacionController::class, 'generatePdf']);
+
 });

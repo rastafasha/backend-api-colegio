@@ -30,6 +30,37 @@ class CalificacionController extends Controller
         ]);
     }
 
+    public function getAverageExamScoresByStudent($studentId)
+    {
+        $student = Student::findOrFail($studentId);
+
+        $averageScores = \DB::table('examenes')
+            ->select('materia_id', \DB::raw('AVG(score) as average_score'))
+            ->where('student_id', $studentId)
+            ->groupBy('materia_id')
+            ->get();
+
+        return response()->json([
+            'student' => $student,
+            'average_scores' => $averageScores,
+        ]);
+    }
+    public function showmateria($id, $student_id)
+    {
+        //traemos todas las calificaciones del estudiante con las materias
+        $student = Student::findOrFail($student_id);
+        $calificacion = Calificacion::where('materia_id', '=', $id)
+        ->where('student_id', '=', $student_id)
+        ->with('materia')
+        ->get();
+
+        return response()->json([
+            "message"=>200,
+            // "student"=>$student,
+            "calificacion" =>$calificacion
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -84,5 +115,9 @@ class CalificacionController extends Controller
 
         $pdf = PDF::loadView('pdf.calificaciones', $data);
         return $pdf->download('calificaciones_' . $student->id . '.pdf');
+    }
+
+    public function search(Request $request){
+        return Calificacion::search($request->buscar);
     }
 }

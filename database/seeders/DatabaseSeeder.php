@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(MateriasSeeder::class);
         $this->call(CalificacionesSeeder::class);
+        $this->call(AssignMaestrosToStudentsSeeder::class);
+        $this->call(ExamenesSeeder::class);
     }
 }

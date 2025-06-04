@@ -45,6 +45,7 @@ class RepresentanteSeeder extends Seeder
                     'birth_date' => $faker->date(),
                     'gender' => $faker->randomElement(['1', '2']),
                     'avatar' => null,
+                    'user_id' => 4,
                     'school_year' => $faker->randomElement(['1st', '2nd', '3rd', '4th', '5th']),
                     'parent_id' => $representante->id,
                     'section' => $faker->randomLetter,
