@@ -15,16 +15,19 @@ class CreateBlogsTable extends Migration
     {
         Schema::create('blogs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('author')->nullable();
-            $table->boolean('is_active')->default(true);
             $table->string('avatar')->nullable();
             $table->string('slug')->unique();
-            $table->unsignedBigInteger('favorite_id')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->boolean('is_featured')->default(false);
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+
+            $table->unsignedBigInteger('favorite_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
+            $table->foreign('category_id')->references('id')->on('categories')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

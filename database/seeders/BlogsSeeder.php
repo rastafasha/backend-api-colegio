@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\User;
 
 class BlogsSeeder extends Seeder
 {
@@ -15,12 +16,18 @@ class BlogsSeeder extends Seeder
      */
     public function run()
     {
+        // Fetch user IDs dynamically
+        $adminUser = User::where('email', 'admin@admin.com')->first();
+        $maestroUser = User::where('email', 'maestro@maestro.com')->first();
+
+        $adminUserId = $adminUser ? $adminUser->id : null;
+        $maestroUserId = $maestroUser ? $maestroUser->id : null;
+
         $blogs = [
             [
-                'user_id' => 2, // admin
+                'user_id' => $adminUserId,
                 'title' => 'Welcome to Our Blog',
                 'description' => 'This is the first post on our blog, created by the admin.',
-                'author' => 'Admin',
                 'is_active' => true,
                 'avatar' => null,
                 'slug' => Str::slug('Welcome to Our Blog'),
@@ -31,10 +38,9 @@ class BlogsSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => 11, // maestro
+                'user_id' => $maestroUserId,
                 'title' => 'Teaching Tips for Success',
                 'description' => 'Helpful tips for teachers to succeed in the classroom.',
-                'author' => 'Maestro',
                 'is_active' => true,
                 'avatar' => null,
                 'slug' => Str::slug('Teaching Tips for Success'),
@@ -45,10 +51,9 @@ class BlogsSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => 2, // admin
+                'user_id' => $adminUserId,
                 'title' => 'Latest Technology Trends',
                 'description' => 'An overview of the latest trends in technology.',
-                'author' => 'Admin',
                 'is_active' => true,
                 'avatar' => null,
                 'slug' => Str::slug('Latest Technology Trends'),
@@ -59,10 +64,9 @@ class BlogsSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => 11, // maestro
+                'user_id' => $maestroUserId,
                 'title' => 'Classroom Management Strategies',
                 'description' => 'Effective strategies for managing a classroom.',
-                'author' => 'Maestro',
                 'is_active' => true,
                 'avatar' => null,
                 'slug' => Str::slug('Classroom Management Strategies'),
@@ -73,10 +77,9 @@ class BlogsSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => 2, // admin
+                'user_id' => $adminUserId,
                 'title' => 'Health and Wellness Tips',
                 'description' => 'Tips for maintaining health and wellness.',
-                'author' => 'Admin',
                 'is_active' => true,
                 'avatar' => null,
                 'slug' => Str::slug('Health and Wellness Tips'),
