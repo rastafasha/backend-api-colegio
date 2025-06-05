@@ -87,6 +87,12 @@ Route::group(['middleware' => 'api'], function ($router) {
     // examen
     require __DIR__ . '/api_routes/examen.php';
     
+    // category
+    require __DIR__ . '/api_routes/category.php';
+    
+    // blog
+    require __DIR__ . '/api_routes/blog.php';
+    
 
 
 

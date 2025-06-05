@@ -6,23 +6,23 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminUserSoftDeletesController;
 
 //Admin Usuarios
-Route::get('/users', [AdminUserController::class, 'index'])
+Route::get('users', [AdminUserController::class, 'index'])
     ->name('users.index');
     
-Route::get('/users/config/', [AdminUserController::class, 'config'])
+Route::get('users/config/', [AdminUserController::class, 'config'])
     ->name('users.config');
 
-Route::get('/user/show/{user}', [AdminUserController::class, 'userShow'])
+Route::get('user/show/{user}', [AdminUserController::class, 'userShow'])
     ->name('user.show');
 
-Route::get('/user/show/ndoc/{n_doc}', [AdminUserController::class, 'showNdoc'])
+Route::get('user/show/ndoc/{n_doc}', [AdminUserController::class, 'showNdoc'])
     ->name('user.showNdoc');
 
 
-Route::put('/user/update/{user}', [AdminUserController::class, 'userUpdate'])
+Route::put('user/update/{user}', [AdminUserController::class, 'userUpdate'])
     ->name('user.update');
 
-Route::delete('/user/destroy/{user}', [AdminUserController::class, 'userDestroy'])
+Route::delete('user/destroy/{user}', [AdminUserController::class, 'userDestroy'])
     ->name('user.destroy');
 
 Route::get('users/recientes/', [AdminUserController::class, 'recientes'])
@@ -34,16 +34,16 @@ Route::get('user/search/{request}', [AdminUserController::class, 'search'])
 
     
 //Admin Usuarios Softdeletes
-Route::get('/users/delete', [AdminUserSoftDeletesController::class, 'index'])
+Route::get('users/delete', [AdminUserSoftDeletesController::class, 'index'])
     ->name('users.delete.index');
 
-Route::get('/user/delete/show/{id}', [AdminUserSoftDeletesController::class, 'userDeleteShow'])
+Route::get('user/delete/show/{id}', [AdminUserSoftDeletesController::class, 'userDeleteShow'])
     ->name('user.delete.show');
 
-Route::put('/user/delete/restore/{id}', [AdminUserSoftDeletesController::class, 'userDeleteRestore'])
+Route::put('user/delete/restore/{id}', [AdminUserSoftDeletesController::class, 'userDeleteRestore'])
     ->name('user.delete.restore');
 
-Route::delete('/user/destroy/force/{id}', [AdminUserSoftDeletesController::class, 'userDeleteforce'])
+Route::delete('user/destroy/force/{id}', [AdminUserSoftDeletesController::class, 'userDeleteforce'])
     ->name('user.delete.force');
 
 

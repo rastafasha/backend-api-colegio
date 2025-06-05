@@ -24,5 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CalificacionesSeeder::class);
         $this->call(AssignMaestrosToStudentsSeeder::class);
         $this->call(ExamenesSeeder::class);
+        $this->call(CategoriesSeeder::class);
+        $this->call(BlogsSeeder::class);
     }
 }
