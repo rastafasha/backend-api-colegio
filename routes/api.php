@@ -93,6 +93,9 @@ Route::group(['middleware' => 'api'], function ($router) {
     // blog
     require __DIR__ . '/api_routes/blog.php';
     
+    // calendariotarea
+    require __DIR__ . '/api_routes/calendariotarea.php';
+    
 
 
 

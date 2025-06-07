@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Patient\Patient;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-// use App\Http\Requests\UserUpdateRequest;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\User\UserResource;
 use App\Http\Resources\User\UserCollection;
-use App\Http\Resources\Patient\PatientCollection;
 
 class AdminUserController extends Controller
 {
@@ -55,6 +55,30 @@ class AdminUserController extends Controller
 
         ]);
     }
+
+    public function maestro()
+    {
+        
+        $users = User::orderBy('id', 'desc')
+        ->with('roles')
+        // ->with('materias')
+        ->where('name',  'MAESTRO')
+            ->get();
+        return response()->json([
+            
+            // "users" => $users,
+            "users" => $users->map(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    "surname" => $user->surname,
+                    "materia_id" => $user->materia_id
+                ];
+            })
+        ]);
+    }
+
+
 
 
     /**
@@ -109,6 +133,31 @@ class AdminUserController extends Controller
         return response()->json([
             "message" => 200,
             "user" => $user->{$role_new}
+        ]);
+    }
+
+     public function update(Request $request, $id)
+    {
+       
+        $user = User::findOrFail($id);
+        if($request->hasFile('imagen')){
+            if($user->avatar){
+                Storage::delete($user->avatar);
+            }
+            $path = Storage::putFile("users", $request->file('imagen'));
+            $request->request->add(["avatar"=>$path]);
+        }
+        
+        if($request->birth_date){
+            $date_clean = preg_replace('/\(.*\)|[A-Z]{3}-\d{4}/', '',$request->birth_date );
+            $request->request->add(["birth_date" => Carbon::parse($date_clean)->format('Y-m-d h:i:s')]);
+        }
+        
+        $user->update($request->all());
+
+        return response()->json([
+            "message"=>200,
+            "user"=>$user
         ]);
     }
 

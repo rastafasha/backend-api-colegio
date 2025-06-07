@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Calendariotareas;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -26,5 +27,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ExamenesSeeder::class);
         $this->call(CategoriesSeeder::class);
         $this->call(BlogsSeeder::class);
+        $this->call(CalendarioTareaSeeder::class);
     }
 }

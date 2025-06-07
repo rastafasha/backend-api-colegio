@@ -11,6 +11,8 @@ Route::get('users', [AdminUserController::class, 'index'])
     
 Route::get('users/config/', [AdminUserController::class, 'config'])
     ->name('users.config');
+Route::get('users/maestros/', [AdminUserController::class, 'maestro'])
+    ->name('users.maestro');
 
 Route::get('user/show/{user}', [AdminUserController::class, 'userShow'])
     ->name('user.show');
@@ -19,7 +21,10 @@ Route::get('user/show/ndoc/{n_doc}', [AdminUserController::class, 'showNdoc'])
     ->name('user.showNdoc');
 
 
-Route::put('user/update/{user}', [AdminUserController::class, 'userUpdate'])
+Route::put('user/update/{user}', [AdminUserController::class, 'update'])
+    ->name('user.update');
+
+Route::put('user/update-admin/{user}', [AdminUserController::class, 'userUpdate'])
     ->name('user.update');
 
 Route::delete('user/destroy/{user}', [AdminUserController::class, 'userDestroy'])

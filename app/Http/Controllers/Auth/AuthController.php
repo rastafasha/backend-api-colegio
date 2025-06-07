@@ -286,6 +286,13 @@ class AuthController extends Controller
     {
         $user = Auth::user();
 
+        if (is_null($user)) {
+            return response()->json([
+                'code' => 401,
+                'status' => 'User not authenticated',
+            ], 401);
+        }
+
         if (!Hash::check($request->current_password, $user->password)) {
 
             return response()->json([

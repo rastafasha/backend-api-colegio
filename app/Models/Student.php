@@ -32,7 +32,11 @@ class Student extends Model
 
     public function maestro()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function maestros()
+    {
+        return $this->hasMany(User::class, 'user_id');
     }
 
     public function payments()

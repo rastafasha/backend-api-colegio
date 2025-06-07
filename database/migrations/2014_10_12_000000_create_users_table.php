@@ -19,13 +19,15 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name', 250);
             $table->string('surname',  250);
-            $table->string('mobile',  50)->nullable();
+            $table->string('n_doc', 50)->unique()->nullable();
             $table->timestamp('birth_date')->nullable();
             $table->tinyInteger('gender')->nullable();
             $table->tinyInteger('status')->default(1);
+            $table->string('mobile',  50)->nullable();
+            $table->string('telefono')->nullable();
             $table->text('address')->nullable();
             $table->string('avatar')->nullable();
-            $table->string('n_doc', 50)->unique()->nullable();
+            $table->string('grado')->nullable();
             
             $table->string('email')->unique()->comment('User email for login');
             $table->timestamp('email_verified_at')->nullable();
