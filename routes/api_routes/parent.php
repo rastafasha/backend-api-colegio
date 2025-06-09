@@ -16,7 +16,7 @@ Route::post('parent/update/{parent}', [RepresentanteController::class, 'update']
 Route::post('parent/updatestatusclient/{parent}', [RepresentanteController::class, 'updateStatusClient'])->name('parent.updateStatusClient');
 Route::post('parent/updatestatusadmin/{parent}', [RepresentanteController::class, 'updateStatusAdmin'])->name('parent.updateStatusAdmin');
 
-Route::delete('parent/destroy/{id}', [RepresentanteController::class, 'destroy'])->name('parent.destroy');
-
 Route::put('parent/update/status/{parent:id}', [RepresentanteController::class, 'updateStatus'])
     ->name('parent.updateStatus');
+    
+Route::delete('parent/destroy/{id}', [RepresentanteController::class, 'destroy'])->name('parent.destroy');
