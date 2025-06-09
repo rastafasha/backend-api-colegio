@@ -10,19 +10,18 @@ class Configuracions extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 
-        'direccion', 
-        'telefono', 
-        'telefonoActivo', 
-        'telPresidencia', 
-        'telPresActivo',
-        'telSecretaria',
-        'telSecActivo',
-        'telTesoreria',
-        'telTesActivo',
+        'name', //string
+        'direccion', //text
+        'email', //string
+        'redessociales', //json
+        'telefono', //string
+        'telefonoActivo', //boolean
+        'telPresidencia', //string
+        'telPresActivo',//boolean
+        'telSecretaria',//string
+        'telSecActivo',//boolean
+        'avatar',//string
     ];
 
-    public function doctor() {
-        return $this->belongsTo(User::class,"user_id");
-    }
+   
 }

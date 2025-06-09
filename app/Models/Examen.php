@@ -18,7 +18,7 @@ class Examen extends Model
         'title',
         'exam_date',
         'puntaje',
-        'puntaje_letra',
+        'valor_examen',
     ];
 
     protected static function booted()
@@ -34,16 +34,28 @@ class Examen extends Model
 
     public function updateCalificacion()
     {
-        $totalPuntaje = self::where('student_id', $this->student_id)
+        $examenes = self::where('student_id', $this->student_id)
             ->where('materia_id', $this->materia_id)
-            ->sum('puntaje');
+            ->get();
+
+        $weightedGrade = 0;
+        $totalWeight = 0;
+
+        foreach ($examenes as $examen) {
+            $weightedGrade += ($examen->puntaje * $examen->valor_examen) / 100;
+            $totalWeight += $examen->valor_examen;
+        }
+
+        if ($totalWeight > 0) {
+            $weightedGrade = ($weightedGrade / $totalWeight) * 100;
+        }
 
         $calificacion = \App\Models\Calificacion::firstOrNew([
             'student_id' => $this->student_id,
             'materia_id' => $this->materia_id,
         ]);
 
-        $calificacion->grade = $totalPuntaje;
+        $calificacion->grade = $weightedGrade;
         $calificacion->save();
     }
 

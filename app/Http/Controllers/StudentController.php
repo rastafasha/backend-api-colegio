@@ -201,4 +201,12 @@ class StudentController extends Controller
         return Student::search($request->buscar);
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $student = Student::findOrfail($id);
+        $student->status = $request->status;
+        $student->update();
+        return $student;
+    }
+
 }

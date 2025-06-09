@@ -14,7 +14,10 @@ Route::get('student/search/{request}', [StudentController::class, 'search'])
 
 Route::post('student/store', [StudentController::class, 'store'])->name('student.store');
 
-Route::post('student/update/{proveedor}', [StudentController::class, 'update'])->name('student.update');
-Route::post('student/updatestatusadmin/{proveedor}', [StudentController::class, 'updateStatusAdmin'])->name('student.updateStatusAdmin');
+Route::post('student/update/{student}', [StudentController::class, 'update'])->name('student.update');
+Route::post('student/updatestatusadmin/{student}', [StudentController::class, 'updateStatusAdmin'])->name('student.updateStatusAdmin');
+
+Route::put('student/update/status/{student:id}', [StudentController::class, 'updateStatus'])
+    ->name('student.updateStatus');
 
 Route::delete('student/destroy/{id}', [StudentController::class, 'destroy'])->name('student.destroy');

@@ -31,7 +31,7 @@ class RepresentanteSeeder extends Seeder
                 'gender' => $faker->randomElement(['1', '2']),
                 'address' => $faker->address,
                 'avatar' => null,
-                'status' => 1,
+                'status' => $faker->randomElement(['ACTIVE', 'INACTIVE']),
             ]);
 
             // Create up to 5 students for each representante
@@ -46,6 +46,8 @@ class RepresentanteSeeder extends Seeder
                     'gender' => $faker->randomElement(['1', '2']),
                     'avatar' => null,
                     'user_id' => 4,
+                    'status' => $faker->randomElement(['ACTIVE', 'INACTIVE', 
+                    'RETIRED','GRADUATED']),
                     'school_year' => $faker->randomElement(['1st', '2nd', '3rd', '4th', '5th']),
                     'parent_id' => $representante->id,
                     'section' => $faker->randomLetter,

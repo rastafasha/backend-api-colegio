@@ -25,7 +25,7 @@ class CalificacionesSeeder extends Seeder
                     'student_id' => $student->id,
                     'materia_id' => $materia->id,
                     'grade' => rand(60, 100), // Random grade between 60 and 100
-                    'semestre' => rand(1, 3),
+                    'lapso' => rand(1, 3),
                     'anio_escolar' => $this->getAnioEscolar(),
                 ]);
             }

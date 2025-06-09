@@ -21,10 +21,12 @@ class CreateParentsTable extends Migration
             $table->string('mobile',  50)->nullable();
             $table->timestamp('birth_date')->nullable();
             $table->tinyInteger('gender')->nullable();
-            $table->tinyInteger('status')->default(1);
             $table->text('address')->nullable();
             $table->string('avatar')->nullable();
             $table->string('n_doc', 50)->unique()->nullable();
+            $table->enum('status', [
+                'ACTIVE', 'INACTIVE'
+                ])->default('INACTIVE');
             
             $table->string('email')->unique()->comment('User email for login');
             $table->timestamp('email_verified_at')->nullable();

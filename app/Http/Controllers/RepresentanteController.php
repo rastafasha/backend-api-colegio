@@ -177,4 +177,12 @@ class RepresentanteController extends Controller
         //         "patient" => PatientCollection::make($patient) ,
         //     ], 200);
     }
+
+     public function updateStatus(Request $request, $id)
+    {
+        $representante = Representante::findOrfail($id);
+        $representante->status = $request->status;
+        $representante->update();
+        return $representante;
+    }
 }

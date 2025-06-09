@@ -20,22 +20,39 @@ class CalificacionesFromExamenesSeeder extends Seeder
 
         foreach ($students as $student) {
             $examenesGrouped = DB::table('examenes')
-                ->select('materia_id', DB::raw('AVG(puntaje) as avg_puntaje'), DB::raw('MAX(puntaje_letra) as max_puntaje_letra'))
+                ->select('materia_id')
                 ->where('student_id', $student->id)
                 ->groupBy('materia_id')
                 ->get();
 
-            foreach ($examenesGrouped as $examen) {
+            foreach ($examenesGrouped as $examenGroup) {
+                $examenes = DB::table('examenes')
+                    ->where('student_id', $student->id)
+                    ->where('materia_id', $examenGroup->materia_id)
+                    ->get();
+
+                $weightedGrade = 0;
+                $totalWeight = 0;
+
+                foreach ($examenes as $examen) {
+                    $weightedGrade += ($examen->puntaje * $examen->valor_examen) / 100;
+                    $totalWeight += $examen->valor_examen;
+                }
+
+                // Normalize if totalWeight is not 100%
+                if ($totalWeight > 0) {
+                    $weightedGrade = ($weightedGrade / $totalWeight) * 100;
+                }
+
                 Calificacion::updateOrCreate(
                     [
                         'student_id' => $student->id,
-                        'materia_id' => $examen->materia_id,
+                        'materia_id' => $examenGroup->materia_id,
                     ],
                     [
-                        'grade' => $examen->avg_puntaje,
-                        'puntaje_letra' => $examen->max_puntaje_letra,
-                        'semestre' => null,
-                        'anio_escolar' => null,
+                        'grade' => $weightedGrade,
+                        'lapso' => 1, // Assuming lapso 1 for seeder, adjust as needed
+                        'anio_escolar' => date('Y'),
                     ]
                 );
             }

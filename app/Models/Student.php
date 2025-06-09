@@ -22,6 +22,7 @@ class Student extends Model
         'section',
         'matricula',
         'user_id',
+        'status',
     ];
 
 

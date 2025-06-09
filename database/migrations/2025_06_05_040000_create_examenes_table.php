@@ -21,7 +21,7 @@ class CreateExamenesTable extends Migration
             $table->string('title');
             $table->date('exam_date')->nullable();
             $table->decimal('puntaje', 8, 2)->nullable();
-            $table->string('puntaje_letra')->nullable();
+            $table->decimal('valor_examen')->nullable();
             $table->timestamps();
 
             $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');

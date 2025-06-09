@@ -18,7 +18,7 @@ class CreateCalificacionesTable extends Migration
             $table->unsignedBigInteger('student_id');
             $table->unsignedBigInteger('materia_id');
             $table->decimal('grade', 5, 2);
-            $table->tinyInteger('semestre');
+            $table->tinyInteger('lapso');
             $table->string('anio_escolar', 20);
             $table->timestamps();
 

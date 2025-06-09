@@ -24,6 +24,9 @@ class CreateStudentsTable extends Migration
             $table->string('section')->nullable();
             $table->double('matricula', 15, 2)->nullable();
             $table->string('avatar')->nullable();
+            $table->enum('status', [
+                'ACTIVE', 'INACTIVE','RETIRED','GRADUATED'
+                ])->default('INACTIVE');
 
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();

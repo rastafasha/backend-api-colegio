@@ -19,7 +19,9 @@ class PaymentsSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        $representantes = Representante::with('students')->get();
+        $representantes = Representante::with('students')
+        ->where('status', 'ACTIVE')
+        ->get();
 
         foreach ($representantes as $representante) {
             foreach ($representante->students as $student) {

@@ -30,8 +30,8 @@ class ExamenesSeeder extends Seeder
                             'materia_id' => $materia->id,
                             'title' => 'Examen ' . $i . ' de ' . $materia->name,
                             'exam_date' => now(),
-                            'puntaje' => rand(50, 100),
-                            'puntaje_letra' => null,
+                            'puntaje' => rand(1, 20),
+                            'valor_examen' => rand(5, 30),
                         ]);
                     }
                 }
