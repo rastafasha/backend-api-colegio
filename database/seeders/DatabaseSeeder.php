@@ -12,21 +12,29 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
-    {
-        // \App\Models\User::factory(10)->create();
-        $this->call(UserSeeder::class);
-        $this->call(RepresentanteSeeder::class);
-        $this->call(PermissionsDemoSeeder::class);
-        $this->call(TiposDePagoSeeder::class);
-        $this->call(PaymentsSeeder::class);
+   public function run()
+{
+    // 1. Roles y Permisos (DEBE IR PRIMERO para poder asignarlos a los usuarios)
+    $this->call(PermissionsDemoSeeder::class);
 
-        $this->call(MateriasSeeder::class);
-        $this->call(CalificacionesSeeder::class);
-        $this->call(AssignMaestrosToStudentsSeeder::class);
-        $this->call(ExamenesSeeder::class);
-        $this->call(CategoriesSeeder::class);
-        $this->call(BlogsSeeder::class);
-        $this->call(CalendarioTareaSeeder::class);
-    }
+    // 2. Catálogos base independientes
+    $this->call(TiposDePagoSeeder::class);
+    $this->call(MateriasSeeder::class);
+    $this->call(CategoriesSeeder::class);
+
+    // 3. Usuarios y Perfiles (Dependen de los roles)
+    $this->call(UserSeeder::class);
+    $this->call(RepresentanteSeeder::class);
+
+    // 4. Relaciones complejas entre entidades existentes
+    $this->call(AssignMaestrosToStudentsSeeder::class);
+
+    // 5. Entidades dependientes (Necesitan usuarios, materias o categorías ya creados)
+    $this->call(PaymentsSeeder::class);
+    $this->call(CalificacionesSeeder::class);
+    $this->call(ExamenesSeeder::class);
+    $this->call(BlogsSeeder::class);
+    $this->call(CalendarioTareaSeeder::class);
+}
+
 }

@@ -16,7 +16,7 @@ class AssignMaestrosToStudentsSeeder extends Seeder
     public function run()
     {
         // Get all maestros users
-        $maestros = User::role('maestro')->get();
+        $maestros = User::role('MAESTRO')->get();
 
         if ($maestros->isEmpty()) {
             $this->command->info('No maestros found to assign.');
