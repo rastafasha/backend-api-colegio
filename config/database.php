@@ -65,7 +65,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DATABASE_URL'),
+            'url' => null, 
             'host' => env('DB_HOST', 'aws-0-us-east-1.pooler.supabase.com'),
             'port' => env('DB_PORT', '6543'),
             'database' => env('DB_DATABASE', 'postgres'),
@@ -77,7 +77,7 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
             'options' => [
-                PDO::ATTR_EMULATE_PREPARES => true, // <-- SOLUCIONA EL 504 EN POOLERS
+                PDO::ATTR_EMULATE_PREPARES => true,
             ],
         ],
 
