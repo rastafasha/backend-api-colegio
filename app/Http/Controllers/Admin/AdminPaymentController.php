@@ -34,7 +34,7 @@ class AdminPaymentController extends Controller
      */
     public function index(Request $request)
     {
-        
+
         $metodo = $request->metodo;
         $search_referencia = $request->search_referencia;
         $bank_name = $request->bank_name;
@@ -47,25 +47,27 @@ class AdminPaymentController extends Controller
         $status = $request->status;
 
 
-        $payments = Payment::filterAdvancePayment($search_referencia, 
-        $bank_name, $bank_destino,
-        $monto,
-        $metodo,
-        $nombre,
-        $fecha,
-        $deuda,
-$status_deuda,
-$status,
+        $payments = Payment::filterAdvancePayment(
+            $search_referencia,
+            $bank_name,
+            $bank_destino,
+            $monto,
+            $metodo,
+            $nombre,
+            $fecha,
+            $deuda,
+            $status_deuda,
+            $status,
         )->orderBy("id", "desc")
-                            ->paginate(1000);
-                            // ->get();
-                    
+            ->paginate(20);
+        // ->get();
+
         return response()->json([
-            "total"=>$payments->total(),
-            "payments" => $payments ,
+            "total" => $payments->total(),
+            "payments" => $payments,
             // "payments" => PaymentCollection::make($payments) ,
-            
-        ]);  
+
+        ]);
     }
 
     /**
@@ -81,9 +83,9 @@ $status,
     {
 
 
-        if($request->hasFile('imagen')){
+        if ($request->hasFile('imagen')) {
             $path = Storage::putFile("payments", $request->file('imagen'));
-            $request->request->add(["avatar"=>$path]);
+            $request->request->add(["avatar" => $path]);
         }
 
         $monto = $request->input('monto');
@@ -115,8 +117,8 @@ $status,
             ->where('student_id', $student_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->where('status', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                    ->where('status', '!=', 'PAID')
+                    ->orWhere('status', 'PENDING');
             })
             ->sum('monto');
 
@@ -159,7 +161,7 @@ $status,
             ->where('student_id', $student_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', 'PENDING');
+                    ->orWhere('status', 'PENDING');
             })
             ->orderBy('created_at', 'asc')
             ->get();
@@ -200,14 +202,14 @@ $status,
      */
     public function paymentShow(Payment $payment)
     {
-       
+
 
         if (!$payment) {
             return response()->json([
                 'message' => 'Pago not found.'
             ], 404);
         }
-        
+
 
 
         return response()->json([
@@ -225,7 +227,7 @@ $status,
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function paymentUpdate(Payment $request,  $id)
+    public function paymentUpdate(Payment $request, $id)
     {
         try {
             DB::beginTransaction();
@@ -244,7 +246,7 @@ $status,
         } catch (\Throwable $exception) {
             DB::rollBack();
             return response()->json([
-                'message' => 'Error no update'  . $exception,
+                'message' => 'Error no update' . $exception,
             ], 500);
         }
     }
@@ -282,11 +284,11 @@ $status,
         }
     }
 
-   
+
     public function recientes()
     {
         $payments = Payment::orderBy('created_at', 'DESC')
-        ->paginate(10);
+            ->paginate(10);
         // ->get();
 
         return response()->json([
@@ -297,7 +299,8 @@ $status,
     }
 
 
-     public function search(Request $request){
+    public function search(Request $request)
+    {
         return Payment::search($request->buscar);
     }
 
@@ -323,11 +326,11 @@ $status,
 
     public function pagosbyUser(Request $request, $parent_id)
     {
-        
+
         $payments = Payment::where("parent_id", $parent_id)
-        ->orderBy('created_at', 'DESC')
-        ->with('student')
-        ->get();
+            ->orderBy('created_at', 'DESC')
+            ->with('student')
+            ->get();
 
         return response()->json([
             'code' => 200,
@@ -337,29 +340,29 @@ $status,
         ], 200);
     }
 
-   
+
 
     public function pagosPendientesbyStudent(Request $request, $student_id)
     {
         $payments = Payment::where("student_id", $student_id)
-        ->orderBy('created_at', 'DESC')
-        // ->with('student')
-        ->get();
+            ->orderBy('created_at', 'DESC')
+            // ->with('student')
+            ->get();
 
         return response()->json([
             // "total" => $payments->total(),
             "payments" => $payments,
         ]);
     }
-    
-     public function pagosPendientes()
+
+    public function pagosPendientes()
     {
-        
+
         $payments = Payment::where('status', 'PENDING')->orderBy("id", "desc")
-                            ->paginate(10);
+            ->paginate(10);
         return response()->json([
-            "total"=>$payments->total(),
-            "payments"=> PaymentCollection::make($payments)
+            "total" => $payments->total(),
+            "payments" => PaymentCollection::make($payments)
         ]);
 
     }
@@ -411,7 +414,7 @@ $status,
         $parentDebt = Payment::where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', '=','PENDING');
+                    ->orWhere('status', '=', 'PENDING');
             })
             ->sum('monto');
 
@@ -420,7 +423,7 @@ $status,
             ->where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', '=','PENDING');
+                    ->orWhere('status', '=', 'PENDING');
             })
             ->groupBy('student_id')
             ->with('student:id,name,matricula') // assuming student has 'name' attribute
@@ -449,7 +452,7 @@ $status,
         $parentDebt = Payment::where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', '=','PENDING');
+                    ->orWhere('status', '=', 'PENDING');
             })
             ->sum('monto');
 
@@ -457,7 +460,7 @@ $status,
         $studentDebt = Payment::where('student_id', $student_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                      ->orWhere('status', '=','PENDING');
+                    ->orWhere('status', '=', 'PENDING');
             })
             ->sum('monto');
 
@@ -484,8 +487,8 @@ $status,
             ->where('parent_id', $parent_id)
             ->where(function ($query) {
                 $query->where('status_deuda', '!=', 'PAID')
-                ->where('status','=',  'REJECTED')
-                      ->orWhere('status','=', 'PENDING');
+                    ->where('status', '=', 'REJECTED')
+                    ->orWhere('status', '=', 'PENDING');
             })
             ->groupBy('student_id')
             ->with('student:id,name,matricula') // assuming student has 'name' attribute
