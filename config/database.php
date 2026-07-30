@@ -75,10 +75,14 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'disable', 
-            'options' => [
-                PDO::ATTR_EMULATE_PREPARES => true,
-            ],
+            // --- ESTOS TRES PARÁMETROS ELIMINAN EL 504 Y EL CORS ---
+        'sslmode' => 'disable', 
+        'strict' => false, 
+        'connect_timeout' => 5, 
+        'options' => [
+            PDO::ATTR_EMULATE_PREPARES => true, 
+            PDO::ATTR_TIMEOUT => 5, 
+        ],
         ],
 
         'sqlsrv' => [

@@ -66,8 +66,8 @@ class Kernel extends HttpKernel
         //Custom
         'jwt.verify' => \App\Http\Middleware\JwtAuthMiddleware::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
-        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
-        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
     ];
 }
