@@ -48,9 +48,11 @@ class AdminPaymentController extends Controller
         'status'            => $request->status,
     ];
 
+    $perPage = $request->query('per_page', 10);
+
     $payments = Payment::filterAdvancePayment($filters)
         ->orderBy("id", "desc")
-        ->paginate(20); // Mantenemos la paginación optimizada a 20
+        ->paginate($perPage); // Mantenemos la paginación optimizada a 10
 
     return response()->json([
         "total"    => $payments->total(),
@@ -276,6 +278,7 @@ class AdminPaymentController extends Controller
 
     public function recientes()
     {
+        
         $payments = Payment::orderBy('created_at', 'DESC')
             ->paginate(10);
         // ->get();

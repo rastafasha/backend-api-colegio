@@ -13,18 +13,23 @@ class TasaBcvController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $tasabcvs = Tasabcv::orderBy('created_at', 'DESC')
-        ->get();
+   public function index(Request $request) 
+{
+    // Capturamos el tamaño de página que envíe Angular, o usamos 20 por defecto
+    $perPage = $request->query('per_page', 10);
 
+    $tasabcvs = Tasabcv::orderBy('created_at', 'DESC')
+        ->paginate($perPage);
 
-        return response()->json([
-            'code' => 200,
-            'status' => 'Listar todos los Pagos',
-            'tasabcvs' => $tasabcvs,
-        ], 200);
-    }
+    return response()->json([
+        'code'   => 200,
+        'status' => 'Listar todas las tasas',
+        // .data extrae el array limpio de registros que Angular va a iterar
+        'tasabcvs' => $tasabcvs->items(), 
+        'total'    => $tasabcvs->total(), // Total de filas para el paginador de Angular
+    ], 200);
+}
+
 
     /**
      * Store a newly created resource in storage.
