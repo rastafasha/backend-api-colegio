@@ -35,7 +35,7 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN sed -i 's|listen = /var/run/php-fpm.sock|listen = 127.0.0.1:9000|g' /usr/local/etc/php-fpm.d/www.conf || \
     sed -i 's|listen = 127.0.0.1:9000|listen = 127.0.0.1:9000|g' /usr/local/etc/php-fpm.d/www.conf
 
-# 🛠️ 9. EL FIX DE CORS DEFINITIVO EN NGINX (Con la directiva 'always')
+# 🛠️ 9. EL FIX DE CORS CORREGIDO EN NGINX (Added auth_token)
 RUN echo 'server { \
     listen 80; \
     root /var/www/public; \
@@ -44,12 +44,12 @@ RUN echo 'server { \
         if ($request_method = "OPTIONS") { \
             add_header "Access-Control-Allow-Origin" "*" always; \
             add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always; \
-            add_header "Access-Control-Allow-Headers" "Authorization, Content-Type, Accept, X-Requested-With" always; \
+            add_header "Access-Control-Allow-Headers" "Authorization, Content-Type, Accept, X-Requested-With, auth_token" always; \
             return 204; \
         } \
         add_header "Access-Control-Allow-Origin" "*" always; \
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always; \
-        add_header "Access-Control-Allow-Headers" "Authorization, Content-Type, Accept, X-Requested-With" always; \
+        add_header "Access-Control-Allow-Headers" "Authorization, Content-Type, Accept, X-Requested-With, auth_token" always; \
         try_files $uri $uri/ /index.php?$query_string; \
     } \
     location ~ \.php$ { \
@@ -58,13 +58,13 @@ RUN echo 'server { \
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; \
         add_header "Access-Control-Allow-Origin" "*" always; \
         add_header "Access-Control-Allow-Methods" "GET, POST, OPTIONS, PUT, DELETE" always; \
-        add_header "Access-Control-Allow-Headers" "Authorization, Content-Type, Accept, X-Requested-With" always; \
+        add_header "Access-Control-Allow-Headers" "Authorization, Content-Type, Accept, X-Requested-With, auth_token" always; \
     } \
 }' > /etc/nginx/sites-available/default
 
 EXPOSE 80
 
-# 10. Encendemos PHP-FPM, limpiamos caché de Laravel 8 y arrancamos Nginx
+# 10. Encendemos PHP-FPM, limpiamos caché de Laravel y arrancamos Nginx
 CMD php-fpm -D && \
     php artisan config:clear && \
     php artisan route:clear && \
