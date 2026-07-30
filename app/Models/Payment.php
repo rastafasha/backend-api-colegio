@@ -112,39 +112,41 @@ class Payment extends Model
 
 public function scopeFilterAdvancePayment($query, array $filters)
 {
-    if (!empty($filters['search_referencia'])) {
-        $query->where("referencia", $filters['search_referencia']);
+    // Limpieza de espacios vacíos y búsquedas condicionales rápidas
+    if (!empty(trim($filters['search_referencia']))) {
+        $query->where("referencia", "LIKE", "%" . trim($filters['search_referencia']) . "%");
     }
-    if (!empty($filters['metodo'])) {
-        $query->where("metodo", $filters['metodo']);
+    if (!empty(trim($filters['metodo']))) {
+        $query->where("metodo", trim($filters['metodo']));
     }
-    if (!empty($filters['bank_name'])) {
-        $query->where("bank_name", $filters['bank_name']);
+    if (!empty(trim($filters['bank_name']))) {
+        $query->where("bank_name", trim($filters['bank_name']));
     }
-    if (!empty($filters['bank_destino'])) {
-        $query->where("bank_destino", $filters['bank_destino']);
+    if (!empty(trim($filters['bank_destino']))) {
+        $query->where("bank_destino", trim($filters['bank_destino']));
     }
-    if (!empty($filters['nombre'])) {
-        $query->where("nombre", $filters['nombre']);
+    if (!empty(trim($filters['nombre']))) {
+        $query->where("nombre", "LIKE", "%" . trim($filters['nombre']) . "%");
     }
     if (!empty($filters['monto'])) {
         $query->where("monto", $filters['monto']);
     }
     if (!empty($filters['fecha'])) {
-        $query->where("fecha", $filters['fecha']);
+        $query->whereDate("fecha", $filters['fecha']); // Corrección para ignorar la hora en búsquedas de fecha
     }
     if (!empty($filters['deuda'])) {
         $query->where("deuda", $filters['deuda']);
     }
-    if (!empty($filters['status_deuda'])) {
-        $query->where("status_deuda", $filters['status_deuda']);
+    if (!empty(trim($filters['status_deuda']))) {
+        $query->where("status_deuda", trim($filters['status_deuda']));
     }
-    if (!empty($filters['status'])) {
-        $query->where("status", $filters['status']);
+    if (!empty(trim($filters['status']))) {
+        $query->where("status", trim($filters['status']));
     }
 
     return $query;
 }
+
 
     public static function search($query = ''){
         if(!$query){
