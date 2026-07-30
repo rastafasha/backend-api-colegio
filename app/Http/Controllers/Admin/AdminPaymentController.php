@@ -32,43 +32,32 @@ class AdminPaymentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
+   public function index(Request $request) 
+{
+    // Pasamos todas las variables juntas en un array organizado
+    $filters = [
+        'search_referencia' => $request->search_referencia,
+        'metodo'            => $request->metodo,
+        'bank_name'         => $request->bank_name,
+        'bank_destino'      => $request->bank_destino,
+        'nombre'            => $request->nombre,
+        'monto'             => $request->monto,
+        'fecha'             => $request->fecha,
+        'deuda'             => $request->deuda,
+        'status_deuda'      => $request->status_deuda,
+        'status'            => $request->status,
+    ];
 
-        $metodo = $request->metodo;
-        $search_referencia = $request->search_referencia;
-        $bank_name = $request->bank_name;
-        $bank_destino = $request->bank_destino;
-        $nombre = $request->nombre;
-        $monto = $request->monto;
-        $fecha = $request->fecha;
-        $deuda = $request->deuda;
-        $status_deuda = $request->status_deuda;
-        $status = $request->status;
+    $payments = Payment::filterAdvancePayment($filters)
+        ->orderBy("id", "desc")
+        ->paginate(20); // Mantenemos la paginación optimizada a 20
 
+    return response()->json([
+        "total"    => $payments->total(),
+        "payments" => $payments,
+    ]);
+}
 
-        $payments = Payment::filterAdvancePayment(
-            $search_referencia,
-            $bank_name,
-            $bank_destino,
-            $monto,
-            $metodo,
-            $nombre,
-            $fecha,
-            $deuda,
-            $status_deuda,
-            $status,
-        )->orderBy("id", "desc")
-            ->paginate(20);
-        // ->get();
-
-        return response()->json([
-            "total" => $payments->total(),
-            "payments" => $payments,
-            // "payments" => PaymentCollection::make($payments) ,
-
-        ]);
-    }
 
     /**
      * Pay the debt for a student under a parent.

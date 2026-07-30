@@ -110,55 +110,41 @@ class Payment extends Model
     |--------------------------------------------------------------------------
     */
 
-
-    public function scopefilterAdvancePayment($query,
-    $metodo, 
-    $search_referencia,
-    $bank_name,
-    $bank_destino,
-    $nombre,
-    $monto,
-    $fecha,
-           $deuda,
-$status_deuda,
-$status
-    ){
-        
-        
-        if($search_referencia){
-            $query->where("referencia", $search_referencia);
-        }
-        if($metodo){
-            $query->where("metodo", $metodo);
-        }
-        if($bank_name){
-            $query->where("bank_name", $bank_name);
-        }
-        if($bank_destino){
-            $query->where("bank_destino", $bank_destino);
-        }
-        
-        if($nombre){
-            $query->where("nombre", $nombre);
-        }
-        if($monto){
-            $query->where("monto", $monto);
-        }
-        if($fecha){
-            $query->where("fecha", $fecha);
-        }
-        if($deuda){
-            $query->where("deuda", $deuda);
-        }
-        if($status_deuda){
-            $query->where("status_deuda", $status_deuda);
-        }
-        if($status){
-            $query->where("status", $status);
-        }
-        
-        return $query;
+public function scopeFilterAdvancePayment($query, array $filters)
+{
+    if (!empty($filters['search_referencia'])) {
+        $query->where("referencia", $filters['search_referencia']);
     }
+    if (!empty($filters['metodo'])) {
+        $query->where("metodo", $filters['metodo']);
+    }
+    if (!empty($filters['bank_name'])) {
+        $query->where("bank_name", $filters['bank_name']);
+    }
+    if (!empty($filters['bank_destino'])) {
+        $query->where("bank_destino", $filters['bank_destino']);
+    }
+    if (!empty($filters['nombre'])) {
+        $query->where("nombre", $filters['nombre']);
+    }
+    if (!empty($filters['monto'])) {
+        $query->where("monto", $filters['monto']);
+    }
+    if (!empty($filters['fecha'])) {
+        $query->where("fecha", $filters['fecha']);
+    }
+    if (!empty($filters['deuda'])) {
+        $query->where("deuda", $filters['deuda']);
+    }
+    if (!empty($filters['status_deuda'])) {
+        $query->where("status_deuda", $filters['status_deuda']);
+    }
+    if (!empty($filters['status'])) {
+        $query->where("status", $filters['status']);
+    }
+
+    return $query;
+}
 
     public static function search($query = ''){
         if(!$query){
