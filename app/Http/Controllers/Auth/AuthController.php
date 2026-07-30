@@ -33,43 +33,9 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
-    {
-        $credentials = request()->only('email', 'password');
-
-        if (! $token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
-        }
-
-        $user = User::where('email', request('email'))->firstOrFail();
-
-        $permissions = auth('api')->user()->getAllPermissions()->map(function($perm){
-            return $perm->name;
-        });
-        return response()->json([
-            'message' => "Inicio de sesión exitoso",
-            'access_token' => $this->respondWithToken($token),
-            'token_type' => 'Bearer',
-            // 'user' => $user,
-            'user'=>[
-                "id"=>auth('api')->user()->id,
-                // "username"=>auth('api')->user()->username,
-                "name"=>auth('api')->user()->name,
-                "surname"=>auth('api')->user()->surname,
-                "avatar"=>auth('api')->user()->avatar,
-                // "rolename"=>auth('api')->user()->rolename,
-                "roles"=>auth('api')->user()->getRoleNames(),
-                "email"=>auth('api')->user()->email,
-                "permissions"=>$permissions,
-
-            ],
-        ], 201);
-        
-    }
-
-    public function loginguest(Request $request) 
+   public function login(Request $request) 
 {
-    // 1. Validar la entrada antes de tocar la base de datos
+    // 1. Simple input validation to shield the database from empty requests
     $request->validate([
         'email'    => 'required|email',
         'password' => 'required|string',
@@ -77,23 +43,23 @@ class AuthController extends Controller
 
     $credentials = $request->only('email', 'password');
 
-    // 2. Intentar la autenticación con el guard correspondiente
-    if (! $token = auth('parent-api')->attempt($credentials)) {
+    // 2. Direct attempt using JWTAuth
+    if (! $token = JWTAuth::attempt($credentials)) {
         return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
     }
 
-    // 3. Almacenar el usuario en una variable para evitar consultar 7 veces
-    $user = auth('parent-api')->user();
+    // 3. Cache the authenticated user in memory (Prevents 7 redundant DB queries)
+    $user = auth('api')->user();
 
-    // 4. Mapear los permisos de forma eficiente
-    $permissions = $user->getAllPermissions()->map(function($perm) { 
-        return $perm->name; 
+    // 4. Map Spatie permissions smoothly
+    $permissions = $user->getAllPermissions()->map(function($perm) {
+        return $perm->name;
     });
 
-    // 5. Retornar respuesta limpia con estado 200 (201 se usa para creación de recursos)
+    // 5. Clean JSON response with an accurate 200 OK HTTP status code
     return response()->json([
         'message'      => "Inicio de sesión exitoso",
-        'access_token' => $this->respondWithTokenParent($token),
+        'access_token' => $this->respondWithToken($token),
         'token_type'   => 'Bearer',
         'user' => [
             "id"          => $user->id,
@@ -107,6 +73,39 @@ class AuthController extends Controller
     ], 200); 
 }
 
+
+    public function loginguest(Request $request)
+    {
+        $credentials = request()->only('email', 'password');
+
+        if (! $token = auth('parent-api')->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
+        }
+
+        $user = Representante::where('email', request('email'))->firstOrFail();
+
+        $permissions = auth('parent-api')->user()->getAllPermissions()->map(function($perm){
+            return $perm->name;
+        });
+        return response()->json([
+            'message' => "Inicio de sesión exitoso",
+            'access_token' => $this->respondWithTokenParent($token),
+            'token_type' => 'Bearer',
+            // 'user' => $user,
+            'user'=>[
+                "id"=>auth('parent-api')->user()->id,
+                "name"=>auth('parent-api')->user()->name,
+                "surname"=>auth('parent-api')->user()->surname,
+                "avatar"=>auth('parent-api')->user()->avatar,
+                // "rolename"=>auth('parent-api')->user()->rolename,
+                "roles"=>auth('parent-api')->user()->getRoleNames(),
+                "email"=>auth('parent-api')->user()->email,
+                "permissions"=>$permissions,
+
+            ],
+        ], 201);
+        
+    }
 
     /**
      * Register a User
