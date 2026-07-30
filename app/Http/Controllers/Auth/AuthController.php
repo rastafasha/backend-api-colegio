@@ -67,38 +67,46 @@ class AuthController extends Controller
         
     }
 
-    public function loginguest(Request $request)
-    {
-        $credentials = request()->only('email', 'password');
+    public function loginguest(Request $request) 
+{
+    // 1. Validar la entrada antes de tocar la base de datos
+    $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required|string',
+    ]);
 
-        if (! $token = auth('parent-api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
-        }
+    $credentials = $request->only('email', 'password');
 
-        $user = Representante::where('email', request('email'))->firstOrFail();
-
-        $permissions = auth('parent-api')->user()->getAllPermissions()->map(function($perm){
-            return $perm->name;
-        });
-        return response()->json([
-            'message' => "Inicio de sesión exitoso",
-            'access_token' => $this->respondWithTokenParent($token),
-            'token_type' => 'Bearer',
-            // 'user' => $user,
-            'user'=>[
-                "id"=>auth('parent-api')->user()->id,
-                "name"=>auth('parent-api')->user()->name,
-                "surname"=>auth('parent-api')->user()->surname,
-                "avatar"=>auth('parent-api')->user()->avatar,
-                // "rolename"=>auth('parent-api')->user()->rolename,
-                "roles"=>auth('parent-api')->user()->getRoleNames(),
-                "email"=>auth('parent-api')->user()->email,
-                "permissions"=>$permissions,
-
-            ],
-        ], 201);
-        
+    // 2. Intentar la autenticación con el guard correspondiente
+    if (! $token = auth('parent-api')->attempt($credentials)) {
+        return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);
     }
+
+    // 3. Almacenar el usuario en una variable para evitar consultar 7 veces
+    $user = auth('parent-api')->user();
+
+    // 4. Mapear los permisos de forma eficiente
+    $permissions = $user->getAllPermissions()->map(function($perm) { 
+        return $perm->name; 
+    });
+
+    // 5. Retornar respuesta limpia con estado 200 (201 se usa para creación de recursos)
+    return response()->json([
+        'message'      => "Inicio de sesión exitoso",
+        'access_token' => $this->respondWithTokenParent($token),
+        'token_type'   => 'Bearer',
+        'user' => [
+            "id"          => $user->id,
+            "name"        => $user->name,
+            "surname"     => $user->surname,
+            "avatar"      => $user->avatar,
+            "roles"       => $user->getRoleNames(),
+            "email"       => $user->email,
+            "permissions" => $permissions,
+        ],
+    ], 200); 
+}
+
 
     /**
      * Register a User

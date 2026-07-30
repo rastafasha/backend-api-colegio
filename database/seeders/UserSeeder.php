@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
 
         // Ensure roles exist
         foreach ($rolesData as $roleData) {
-            \Spatie\Permission\Models\Role::firstOrCreate(
+            Role::firstOrCreate(
                 ['id' => $roleData['id']],
                 ['name' => $roleData['name'], 'guard_name' => $roleData['guard_name']]
             );
