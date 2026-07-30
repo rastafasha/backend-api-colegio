@@ -32,7 +32,13 @@ use App\Http\Controllers\Auth\ChangeForgotPasswordControllerController;
 // Route::post('login', [AuthController::class, 'login'])
 //     ->name('login');
 
-
+// 🌟 SOLUCIÓN GLOBAL DE PREFLIGHT PARA EVITAR EL BLOQUEO EN ANGULAR
+Route::options('{any}', function() {
+    return response('', 200)
+        ->header('Access-Control-Allow-Origin', 'https://padresappcolegio.vercel.app, https://app-pagos-colegio.vercel.app', ) // Tu frontend de Angular
+        ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, auth_token');
+})->where('any', '.*');
 
 
 
