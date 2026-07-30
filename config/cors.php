@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://padresappcolegio.vercel.app', 'https://app-pagos-colegio.vercel.app'],
 
     'allowed_origins_patterns' => ['*'],
 
