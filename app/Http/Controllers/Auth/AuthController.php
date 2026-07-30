@@ -76,7 +76,12 @@ class AuthController extends Controller
 
     public function loginguest(Request $request)
     {
-        $credentials = request()->only('email', 'password');
+         $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $credentials = $request->only('email', 'password');
 
         if (! $token = auth('parent-api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized - Credenciales incorrectas'], 401);

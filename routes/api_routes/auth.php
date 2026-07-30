@@ -17,8 +17,7 @@ Route::post('me', [AuthController::class, 'me'])
 Route::post('login', [AuthController::class, 'login'])
     ->name('login');
 
-Route::post('loginguest', [AuthController::class, 'loginguest'])
-    ->name('loginguest');
+Route::post('loginguest', [AuthController::class, 'loginguest'])->name('loginguest');
 
 Route::get('user', [AuthController::class, 'me'])
     ->name('user');
